@@ -29,11 +29,12 @@ class AppColors {
   static const Color surfaceVariant = Color(0xFFF8FAFC); // Slate 50
   static const Color surfaceContainer = Color(0xFFF1F5F9); // Slate 100
   
-  // Text Colors - High Contrast
-  static const Color textPrimary = Color(0xFF0F172A); // Slate 900
-  static const Color textSecondary = Color(0xFF475569); // Slate 600
-  static const Color textTertiary = Color(0xFF94A3B8); // Slate 400
+  // Text Colors - Optimized for Dark Background
+  static const Color textPrimary = Color(0xFFFFFFFF); // Pure white for maximum contrast
+  static const Color textSecondary = Color(0xFFE2E8F0); // Slate 200 - Light gray for secondary text
+  static const Color textTertiary = Color(0xFF94A3B8); // Slate 400 - Medium gray for tertiary text
   static const Color textOnDark = Color(0xFFFFFFFF);
+  static const Color textOnLight = Color(0xFF0F172A); // For light sections like CTA
   
   // Gold Accent - Luxury Touch
   static const Color gold = Color(0xFFF59E0B); // Amber 500

@@ -17,7 +17,7 @@ class NewsSection extends StatelessWidget {
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 80),
-          color: Colors.white,
+          color: Colors.transparent,
           child: Container(
             constraints: const BoxConstraints(maxWidth: 1200),
             margin: const EdgeInsets.symmetric(horizontal: 20),

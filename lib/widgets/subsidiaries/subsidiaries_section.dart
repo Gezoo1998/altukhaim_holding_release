@@ -23,12 +23,8 @@ class SubsidiariesSection extends StatelessWidget {
             vertical: ResponsiveHelper.isMobile(screenWidth) ? 60 : 100,
             horizontal: ResponsiveHelper.getHorizontalPadding(screenWidth),
           ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [AppColors.surface, AppColors.surface.withOpacity(0.8)],
-            ),
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
           ),
           child: Center(
             child: ConstrainedBox(

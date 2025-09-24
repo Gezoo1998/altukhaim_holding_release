@@ -26,13 +26,8 @@ class TestimonialsSection extends StatelessWidget {
                 vertical: isMobile ? 80 : 120,
                 horizontal: isMobile ? 20 : 40,
               ),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/pattern-bg.svg'),
-                  fit: BoxFit.cover,
-                  opacity: 0.03,
-                ),
+              decoration: const BoxDecoration(
+                color: Colors.transparent,
               ),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 1200),
