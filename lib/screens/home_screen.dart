@@ -4,12 +4,13 @@ import '../providers/language_provider.dart';
 import '../widgets/header/app_header.dart';
 import '../widgets/hero/hero_section.dart';
 import '../widgets/about/about_section.dart';
-import '../widgets/services/services_section.dart';
+
 import '../widgets/subsidiaries/subsidiaries_section.dart';
 import '../widgets/news/news_section.dart';
 import '../widgets/cta/cta_section.dart';
 import '../widgets/contact/contact_section.dart';
 import '../widgets/footer/footer_section.dart';
+import '../widgets/testimonials/testimonials_section.dart';
 import '../constants/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,7 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _homeKey = GlobalKey();
   final GlobalKey _aboutKey = GlobalKey();
-  final GlobalKey _servicesKey = GlobalKey();
   final GlobalKey _subsidiariesKey = GlobalKey();
   final GlobalKey _newsKey = GlobalKey();
   final GlobalKey _contactKey = GlobalKey();
@@ -43,9 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       case 'about':
         targetKey = _aboutKey;
-        break;
-      case 'services':
-        targetKey = _servicesKey;
         break;
       case 'subsidiaries':
         targetKey = _subsidiariesKey;
@@ -109,12 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: const AboutSection(),
                         ),
                         
-                        // Services Section
-                        Container(
-                          key: _servicesKey,
-                          child: const ServicesSection(),
-                        ),
-                        
                         // Subsidiaries Section
                         Container(
                           key: _subsidiariesKey,
@@ -126,6 +117,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           key: _newsKey,
                           child: const NewsSection(),
                         ),
+                        
+                        // Testimonials Section
+                        const TestimonialsSection(),
                         
                         // CTA Section
                         const CTASection(),

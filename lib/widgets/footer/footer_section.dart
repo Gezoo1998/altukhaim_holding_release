@@ -97,7 +97,7 @@ class FooterSection extends StatelessWidget {
         // Company Logo/Name
         Text(
           isArabic ? 'مجموعة نواف التخيم القابضة' : 'Nawaf Al Tokheim Holding',
-          style: AppTextStyles.heading4.copyWith(
+          style: AppTextStyles.headingSmall.copyWith(
             fontSize: isMobile ? 20 : 24,
             fontWeight: FontWeight.bold,
             color: AppColors.white,
@@ -113,7 +113,7 @@ class FooterSection extends StatelessWidget {
           ),
           child: Text(
             AppLocalizations.translate('footer_description', isArabic ? 'ar' : 'en'),
-            style: AppTextStyles.getBody1(isArabic).copyWith(
+            style: AppTextStyles.bodyMedium.copyWith(
               color: AppColors.white.withValues(alpha: 0.8),
               height: 1.6,
             ),
@@ -150,7 +150,7 @@ class FooterSection extends StatelessWidget {
       children: [
         Icon(
           icon,
-          color: AppColors.accentGold,
+          color: AppColors.accent,
           size: 18,
         ),
         
@@ -183,7 +183,7 @@ class FooterSection extends StatelessWidget {
       children: [
         Text(
           AppLocalizations.translate('quick_links', isArabic ? 'ar' : 'en'),
-          style: AppTextStyles.heading4.copyWith(
+          style: AppTextStyles.headingSmall.copyWith(
             fontSize: isMobile ? 18 : 20,
             fontWeight: FontWeight.bold,
             color: AppColors.white,
@@ -201,7 +201,7 @@ class FooterSection extends StatelessWidget {
             },
             child: Text(
               AppLocalizations.translate(link['key']!, isArabic ? 'ar' : 'en'),
-              style: AppTextStyles.getBody1(isArabic).copyWith(
+              style: AppTextStyles.bodyMedium.copyWith(
                 color: AppColors.white.withValues(alpha: 0.8),
               ),
             ),
@@ -224,7 +224,7 @@ class FooterSection extends StatelessWidget {
       children: [
         Text(
           AppLocalizations.translate('follow_us', isArabic ? 'ar' : 'en'),
-          style: AppTextStyles.heading4.copyWith(
+          style: AppTextStyles.headingSmall.copyWith(
             fontSize: isMobile ? 18 : 20,
             fontWeight: FontWeight.bold,
             color: AppColors.white,
@@ -319,7 +319,7 @@ class FooterSection extends StatelessWidget {
               child: Text(
                 AppLocalizations.translate('privacy_policy', isArabic ? 'ar' : 'en'),
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.accentGold,
+                  color: AppColors.accent,
                 ),
               ),
             ),
@@ -336,7 +336,7 @@ class FooterSection extends StatelessWidget {
               child: Text(
                 AppLocalizations.translate('terms_conditions', isArabic ? 'ar' : 'en'),
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.accentGold,
+                  color: AppColors.accent,
                 ),
               ),
             ),
@@ -364,7 +364,7 @@ class FooterSection extends StatelessWidget {
               child: Text(
                 AppLocalizations.translate('privacy_policy', isArabic ? 'ar' : 'en'),
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.accentGold,
+                  color: AppColors.accent,
                 ),
               ),
             ),
@@ -381,7 +381,7 @@ class FooterSection extends StatelessWidget {
               child: Text(
                 AppLocalizations.translate('terms_conditions', isArabic ? 'ar' : 'en'),
                 style: AppTextStyles.bodySmall.copyWith(
-                  color: AppColors.accentGold,
+                  color: AppColors.accent,
                 ),
               ),
             ),

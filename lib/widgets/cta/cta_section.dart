@@ -21,9 +21,9 @@ class CTASection extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.saudiGreen,
-                AppColors.saudiGreenDark,
-                AppColors.primaryBlue,
+                AppColors.accent,
+                AppColors.accentDark,
+                AppColors.primary,
               ],
             ),
           ),
@@ -63,7 +63,7 @@ class CTASection extends StatelessWidget {
       children: [
         Text(
           AppLocalizations.translate('cta_title', isArabic ? 'ar' : 'en'),
-          style: AppTextStyles.heading1.copyWith(
+          style: AppTextStyles.headingLarge.copyWith(
             fontSize: isMobile ? 32 : (isTablet ? 40 : 48),
             color: AppColors.white,
             fontWeight: FontWeight.bold,
@@ -141,7 +141,7 @@ class CTASection extends StatelessWidget {
       width: isMobile ? double.infinity : (isTablet ? 250 : 280),
       height: 60,
       decoration: BoxDecoration(
-        color: isPrimary ? AppColors.accentGold : Colors.transparent,
+        color: isPrimary ? AppColors.accent : Colors.transparent,
         border: isPrimary ? null : Border.all(
           color: AppColors.white,
           width: 2,
@@ -149,7 +149,7 @@ class CTASection extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
         boxShadow: isPrimary ? [
           BoxShadow(
-            color: AppColors.accentGold.withValues(alpha: 0.3),
+            color: AppColors.accent.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -167,7 +167,7 @@ class CTASection extends StatelessWidget {
               children: [
                 Text(
                   text,
-                  style: AppTextStyles.getBody1(isArabic).copyWith(
+                  style: AppTextStyles.bodyMedium.copyWith(
                     fontSize: isMobile ? 16 : 18,
                     fontWeight: FontWeight.w600,
                     color: isPrimary ? AppColors.darkGray : AppColors.white,

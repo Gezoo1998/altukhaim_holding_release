@@ -1,9 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/language_provider.dart';
 import '../../utils/app_localizations.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../common/animated_section.dart';
 
 class AppHeader extends StatefulWidget implements PreferredSizeWidget {
   final Function(String)? onNavigate;
@@ -17,8 +19,29 @@ class AppHeader extends StatefulWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(80);
 }
 
-class _AppHeaderState extends State<AppHeader> {
+class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
   bool _isMenuOpen = false;
+  late AnimationController _menuController;
+  late Animation<double> _menuAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _menuController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _menuAnimation = CurvedAnimation(
+      parent: _menuController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _menuController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,97 +54,122 @@ class _AppHeaderState extends State<AppHeader> {
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.surface.withOpacity(0.95),
+            AppColors.surface.withOpacity(0.98),
+          ],
+        ),
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.primary.withOpacity(0.1),
+            width: 1,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColors.shadowLight,
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+            spreadRadius: 0,
           ),
         ],
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 16 : (isTablet ? 24 : 32),
-        ),
-        child: Row(
-          children: [
-            // Logo
-            _buildLogo(languageProvider, isMobile),
-            const Spacer(),
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 20 : (isTablet ? 32 : 48),
+            ),
+            child: Row(
+              children: [
+                // Logo
+                _buildLogo(languageProvider, isMobile),
+                const Spacer(),
 
-            if (!isMobile) ...[
-              // Desktop Navigation
-              _buildDesktopNavigation(languageProvider),
-              const SizedBox(width: 24),
-              _buildLanguageToggle(languageProvider),
-            ] else ...[
-              // Mobile Language Toggle
-              _buildLanguageToggle(languageProvider),
-              const SizedBox(width: 16),
-              // Mobile Menu Button
-              _buildMobileMenuButton(),
-            ],
-          ],
+                if (!isMobile) ...[
+                  // Desktop Navigation
+                  _buildDesktopNavigation(languageProvider),
+                  const SizedBox(width: 32),
+                  _buildLanguageToggle(languageProvider),
+                ] else ...[
+                  // Mobile Language Toggle
+                  _buildLanguageToggle(languageProvider),
+                  const SizedBox(width: 16),
+                  // Mobile Menu Button
+                  _buildMobileMenuButton(),
+                ],
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildLogo(LanguageProvider languageProvider, bool isMobile) {
-    return Flexible(
+    return AnimatedSection(
+      duration : const Duration(milliseconds: 100),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: isMobile ? 36 : 40,
-            height: isMobile ? 36 : 40,
+            width: isMobile ? 40 : 48,
+            height: isMobile ? 40 : 48,
             decoration: BoxDecoration(
-              color: AppColors.saudiGreen,
-              borderRadius: BorderRadius.circular(8),
+              gradient: AppColors.primaryGradient,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.primary.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Icon(
-              Icons.business,
-              color: Colors.white,
+              Icons.business_center_rounded,
+              color: AppColors.surface,
               size: isMobile ? 20 : 24,
             ),
           ),
-          SizedBox(width: isMobile ? 8 : 12),
-          if (!isMobile) // Hide text on mobile to save space
-            Flexible(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.translate(
-                      'company_name',
-                      languageProvider.currentLocale.languageCode,
-                    ),
-                    style:
-                        AppTextStyles.getHeading3(
-                          languageProvider.currentLocale.languageCode == 'ar',
-                        ).copyWith(
-                          color: AppColors.saudiGreen,
-                          fontWeight: FontWeight.bold,
-                        ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+          if (!isMobile) ...[
+            const SizedBox(width: 16),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.translate(
+                    'hero_title',
+                    languageProvider.currentLocale.languageCode,
                   ),
-                  Text(
-                    AppLocalizations.translate(
-                      'company_tagline',
-                      languageProvider.currentLocale.languageCode,
-                    ),
-                    style: AppTextStyles.getCaption(
-                      languageProvider.currentLocale.languageCode == 'ar',
-                    ).copyWith(color: AppColors.mediumGray),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+                  style: AppTextStyles.headingSmall.copyWith(
+                    color: AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
                   ),
-                ],
-              ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                Text(
+                  AppLocalizations.translate(
+                    'company_tagline',
+                    languageProvider.currentLocale.languageCode,
+                  ),
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ],
             ),
+          ],
         ],
       ),
     );
@@ -135,6 +183,7 @@ class _AppHeaderState extends State<AppHeader> {
           'home',
           languageProvider.currentLocale.languageCode,
         ),
+        'icon': Icons.home_rounded,
       },
       {
         'key': 'about',
@@ -142,6 +191,7 @@ class _AppHeaderState extends State<AppHeader> {
           'about_us',
           languageProvider.currentLocale.languageCode,
         ),
+        'icon': Icons.info_rounded,
       },
       {
         'key': 'services',
@@ -149,6 +199,7 @@ class _AppHeaderState extends State<AppHeader> {
           'services',
           languageProvider.currentLocale.languageCode,
         ),
+        'icon': Icons.business_rounded,
       },
       {
         'key': 'subsidiaries',
@@ -156,6 +207,7 @@ class _AppHeaderState extends State<AppHeader> {
           'subsidiaries',
           languageProvider.currentLocale.languageCode,
         ),
+        'icon': Icons.account_tree_rounded,
       },
       {
         'key': 'news',
@@ -163,6 +215,7 @@ class _AppHeaderState extends State<AppHeader> {
           'news',
           languageProvider.currentLocale.languageCode,
         ),
+        'icon': Icons.article_rounded,
       },
       {
         'key': 'contact',
@@ -170,57 +223,97 @@ class _AppHeaderState extends State<AppHeader> {
           'contact',
           languageProvider.currentLocale.languageCode,
         ),
+        'icon': Icons.contact_mail_rounded,
       },
     ];
 
-    return Flexible(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: navItems.map((item) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: TextButton(
-                onPressed: () {
-                  if (widget.onNavigate != null) {
-                    widget.onNavigate!(item['key']!);
-                  }
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.darkGray,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 8,
+    return AnimatedSection(
+      duration: const Duration(milliseconds: 200),
+      child: Row(
+        children: navItems.asMap().entries.map((entry) {
+          final index = entry.key;
+          final item = entry.value;
+          
+          return AnimatedSection(
+            duration: Duration(milliseconds: 300 + (index * 50)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: HoverAnimationWrapper(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-                child: Text(
-                  item['label']!,
-                  style: AppTextStyles.getNavText(
-                    languageProvider.currentLocale.languageCode == 'ar',
+                  child: TextButton(
+                    onPressed: () {
+                      if (widget.onNavigate != null) {
+                        widget.onNavigate!(item['key']! as String);
+                      }
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.textPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      overlayColor: AppColors.primary.withOpacity(0.1),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          item['icon'] as IconData,
+                          size: 18,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          item['label']! as String,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
                 ),
               ),
-            );
-          }).toList(),
-        ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
 
   Widget _buildLanguageToggle(LanguageProvider languageProvider) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.saudiGreen),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildLanguageButton('العربية', 'ar', languageProvider),
-          _buildLanguageButton('EN', 'en', languageProvider),
-        ],
+    return AnimatedSection(
+      duration: const Duration(milliseconds: 400),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface.withOpacity(0.8),
+          border: Border.all(
+            color: AppColors.primary.withOpacity(0.2),
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.shadowLight,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildLanguageButton('العربية', 'ar', languageProvider),
+            _buildLanguageButton('EN', 'en', languageProvider),
+          ],
+        ),
       ),
     );
   }
@@ -233,22 +326,34 @@ class _AppHeaderState extends State<AppHeader> {
     final isSelected =
         languageProvider.currentLocale.languageCode == languageCode;
 
-    return GestureDetector(
-      onTap: () {
-        languageProvider.setLanguage(languageCode);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.saudiGreen : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isSelected ? Colors.white : AppColors.saudiGreen,
-            fontWeight: FontWeight.w500,
-            fontSize: 12,
+    return HoverAnimationWrapper(
+      child: GestureDetector(
+        onTap: () {
+          languageProvider.setLanguage(languageCode);
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          decoration: BoxDecoration(
+            gradient: isSelected ? AppColors.primaryGradient : null,
+            color: isSelected ? null : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            text,
+            style: AppTextStyles.labelMedium.copyWith(
+              color: isSelected ? AppColors.surface : AppColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),
@@ -256,17 +361,52 @@ class _AppHeaderState extends State<AppHeader> {
   }
 
   Widget _buildMobileMenuButton() {
-    return IconButton(
-      onPressed: () {
-        setState(() {
-          _isMenuOpen = !_isMenuOpen;
-        });
-        _showMobileMenu();
-      },
-      icon: Icon(
-        _isMenuOpen ? Icons.close : Icons.menu,
-        color: AppColors.saudiGreen,
-        size: 24,
+    return AnimatedSection(
+      duration: const Duration(milliseconds: 500),
+      child: HoverAnimationWrapper(
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.surface.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: AppColors.primary.withOpacity(0.2),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.shadowLight,
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: IconButton(
+            onPressed: () {
+              setState(() {
+                _isMenuOpen = !_isMenuOpen;
+              });
+              if (_isMenuOpen) {
+                _menuController.forward();
+              } else {
+                _menuController.reverse();
+              }
+              _showMobileMenu();
+            },
+            icon: AnimatedBuilder(
+              animation: _menuAnimation,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: _menuAnimation.value * 0.5,
+                  child: Icon(
+                    _isMenuOpen ? Icons.close_rounded : Icons.menu_rounded,
+                    color: AppColors.primary,
+                    size: 24,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -280,10 +420,8 @@ class _AppHeaderState extends State<AppHeader> {
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (context) {
         final navItems = [
           {
@@ -292,6 +430,7 @@ class _AppHeaderState extends State<AppHeader> {
               'home',
               languageProvider.currentLocale.languageCode,
             ),
+            'icon': Icons.home_rounded,
           },
           {
             'key': 'about',
@@ -299,6 +438,7 @@ class _AppHeaderState extends State<AppHeader> {
               'about_us',
               languageProvider.currentLocale.languageCode,
             ),
+            'icon': Icons.info_rounded,
           },
           {
             'key': 'services',
@@ -306,6 +446,7 @@ class _AppHeaderState extends State<AppHeader> {
               'services',
               languageProvider.currentLocale.languageCode,
             ),
+            'icon': Icons.business_rounded,
           },
           {
             'key': 'subsidiaries',
@@ -313,6 +454,7 @@ class _AppHeaderState extends State<AppHeader> {
               'subsidiaries',
               languageProvider.currentLocale.languageCode,
             ),
+            'icon': Icons.account_tree_rounded,
           },
           {
             'key': 'news',
@@ -320,6 +462,7 @@ class _AppHeaderState extends State<AppHeader> {
               'news',
               languageProvider.currentLocale.languageCode,
             ),
+            'icon': Icons.article_rounded,
           },
           {
             'key': 'contact',
@@ -327,42 +470,113 @@ class _AppHeaderState extends State<AppHeader> {
               'contact',
               languageProvider.currentLocale.languageCode,
             ),
+            'icon': Icons.contact_mail_rounded,
           },
         ];
 
         return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.lightGray,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                AppColors.surface,
+                AppColors.surface.withOpacity(0.98),
+              ],
+            ),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.shadowLight,
+                blurRadius: 20,
+                offset: const Offset(0, -4),
               ),
-              const SizedBox(height: 24),
-              ...navItems.map((item) {
-                return ListTile(
-                  title: Text(
-                    item['label']!,
-                    style: AppTextStyles.getNavText(isArabic),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (widget.onNavigate != null) {
-                      widget.onNavigate!(item['key']!);
-                    }
-                  },
-                );
-              }).toList(),
-              const SizedBox(height: 16),
             ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle
+                Container(
+                  width: 48,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.textSecondary.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                
+                // Navigation Items
+                ...navItems.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+                  
+                  return AnimatedSection(
+                    duration: Duration(milliseconds: 100 + (index * 50)),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: AppColors.surface.withOpacity(0.5),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.1),
+                          width: 1,
+                        ),
+                      ),
+                      child: ListTile(
+                        leading: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.primaryGradient,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            item['icon'] as IconData,
+                            color: AppColors.surface,
+                            size: 20,
+                          ),
+                        ),
+                        title: Text(
+                          item['label']! as String,
+                          style: AppTextStyles.bodyLarge.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        trailing: Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: AppColors.textSecondary,
+                          size: 16,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            _isMenuOpen = false;
+                          });
+                          _menuController.reverse();
+                          if (widget.onNavigate != null) {
+                            widget.onNavigate!(item['key']! as String);
+                          }
+                        },
+                      ),
+                    ),
+                  );
+                }).toList(),
+                
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         );
       },
-    );
+    ).then((_) {
+      setState(() {
+        _isMenuOpen = false;
+      });
+      _menuController.reverse();
+    });
   }
 }

@@ -34,22 +34,31 @@ class ServicesSection extends StatelessWidget {
                 AnimatedSection(
                   duration: const Duration(milliseconds: 600),
                   child: Text(
-                    AppLocalizations.translate('services_title', languageProvider.currentLocale.languageCode),
-                    style: AppTextStyles.getHeading2(isArabic).copyWith(
-                      color: AppColors.saudiGreen,
-                      fontSize: ResponsiveHelper.getHeadingSize(screenWidth, baseSize: 36),
+                    AppLocalizations.translate(
+                      'services_title',
+                      languageProvider.currentLocale.languageCode,
+                    ),
+                    style: AppTextStyles.headingMedium.copyWith(
+                      color: AppColors.accent,
+                      fontSize: ResponsiveHelper.getHeadingSize(
+                        screenWidth,
+                        baseSize: 36,
+                      ),
                     ),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Section Subtitle
                 AnimatedSection(
                   duration: const Duration(milliseconds: 800),
                   child: Text(
-                    AppLocalizations.translate('services_subtitle', languageProvider.currentLocale.languageCode),
-                    style: AppTextStyles.getSubtitle1(isArabic).copyWith(
+                    AppLocalizations.translate(
+                      'services_subtitle',
+                      languageProvider.currentLocale.languageCode,
+                    ),
+                    style: AppTextStyles.heroSubtitle.copyWith(
                       color: AppColors.mediumGray,
                       fontSize: ResponsiveHelper.getBodySize(screenWidth),
                     ),
@@ -57,7 +66,7 @@ class ServicesSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 60),
-                
+
                 // Services Grid
                 _buildServicesGrid(languageProvider, isArabic, screenWidth),
               ],
@@ -68,7 +77,11 @@ class ServicesSection extends StatelessWidget {
     );
   }
 
-  Widget _buildServicesGrid(LanguageProvider languageProvider, bool isArabic, double screenWidth) {
+  Widget _buildServicesGrid(
+    LanguageProvider languageProvider,
+    bool isArabic,
+    double screenWidth,
+  ) {
     final services = [
       {
         'icon': Icons.trending_up,
@@ -104,21 +117,29 @@ class ServicesSection extends StatelessWidget {
 
     if (ResponsiveHelper.isMobile(screenWidth)) {
       return StaggeredAnimationWrapper(
-        children: services.map((service) => 
-          Padding(
-            padding: const EdgeInsets.only(bottom: 24),
-            child: HoverAnimationWrapper(
-              elevation: 8,
-              child: _buildServiceCard(
-                service['icon'] as IconData,
-                AppLocalizations.translate(service['title'] as String, languageProvider.currentLocale.languageCode),
-                AppLocalizations.translate(service['description'] as String, languageProvider.currentLocale.languageCode),
-                isArabic,
-                screenWidth,
+        children: services
+            .map(
+              (service) => Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: HoverAnimationWrapper(
+                  elevation: 8,
+                  child: _buildServiceCard(
+                    service['icon'] as IconData,
+                    AppLocalizations.translate(
+                      service['title'] as String,
+                      languageProvider.currentLocale.languageCode,
+                    ),
+                    AppLocalizations.translate(
+                      service['description'] as String,
+                      languageProvider.currentLocale.languageCode,
+                    ),
+                    isArabic,
+                    screenWidth,
+                  ),
+                ),
               ),
-            ),
-          ),
-        ).toList(),
+            )
+            .toList(),
       );
     } else {
       final crossAxisCount = ResponsiveHelper.isTablet(screenWidth) ? 2 : 3;
@@ -138,8 +159,14 @@ class ServicesSection extends StatelessWidget {
             elevation: 8,
             child: _buildServiceCard(
               service['icon'] as IconData,
-              AppLocalizations.translate(service['title'] as String, languageProvider.currentLocale.languageCode),
-              AppLocalizations.translate(service['description'] as String, languageProvider.currentLocale.languageCode),
+              AppLocalizations.translate(
+                service['title'] as String,
+                languageProvider.currentLocale.languageCode,
+              ),
+              AppLocalizations.translate(
+                service['description'] as String,
+                languageProvider.currentLocale.languageCode,
+              ),
               isArabic,
               screenWidth,
             ),
@@ -149,7 +176,13 @@ class ServicesSection extends StatelessWidget {
     }
   }
 
-  Widget _buildServiceCard(IconData icon, String title, String description, bool isArabic, double screenWidth) {
+  Widget _buildServiceCard(
+    IconData icon,
+    String title,
+    String description,
+    bool isArabic,
+    double screenWidth,
+  ) {
     return Container(
       padding: EdgeInsets.all(ResponsiveHelper.isMobile(screenWidth) ? 24 : 32),
       decoration: BoxDecoration(
@@ -178,8 +211,8 @@ class ServicesSection extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.saudiGreen,
-                  AppColors.saudiGreen.withValues(alpha: 0.8),
+                  AppColors.accent,
+                  AppColors.accent.withValues(alpha: 0.8),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -187,7 +220,7 @@ class ServicesSection extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.saudiGreen.withValues(alpha: 0.3),
+                  color: AppColors.accent.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -200,45 +233,48 @@ class ServicesSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Title
           Text(
             title,
-            style: AppTextStyles.getHeading4(isArabic).copyWith(
+            style: AppTextStyles.headingSmall.copyWith(
               color: AppColors.darkGray,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
-          
+
           // Description
           Text(
             description,
-            style: AppTextStyles.getBody2(isArabic).copyWith(
+            style: AppTextStyles.bodySmall.copyWith(
               color: AppColors.mediumGray,
               height: 1.6,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
-          
+
           // Learn More Button
           TextButton(
             onPressed: () {
               // TODO: Implement service details navigation
             },
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.saudiGreen,
+              foregroundColor: AppColors.accent,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  AppLocalizations.translate('learn_more', 'en'), // Using 'en' as fallback
-                  style: AppTextStyles.getBody2(isArabic).copyWith(
-                    color: AppColors.saudiGreen,
+                  AppLocalizations.translate(
+                    'learn_more',
+                    'en',
+                  ), // Using 'en' as fallback
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.accent,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -246,7 +282,7 @@ class ServicesSection extends StatelessWidget {
                 Icon(
                   isArabic ? Icons.arrow_back : Icons.arrow_forward,
                   size: 16,
-                  color: AppColors.saudiGreen,
+                  color: AppColors.accent,
                 ),
               ],
             ),

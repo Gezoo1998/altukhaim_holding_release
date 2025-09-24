@@ -42,8 +42,8 @@ class NewsSection extends StatelessWidget {
       children: [
         Text(
           AppLocalizations.translate('news_title', languageProvider.currentLocale.languageCode),
-          style: AppTextStyles.heading1.copyWith(
-            color: AppColors.primaryBlue,
+          style: AppTextStyles.headingLarge.copyWith(
+            color: AppColors.primary,
           ),
           textAlign: TextAlign.center,
           textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
@@ -159,8 +159,8 @@ class NewsSection extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppColors.primaryBlue.withValues(alpha: 0.8),
-                AppColors.accentGold.withValues(alpha: 0.8),
+                  AppColors.primary.withValues(alpha: 0.8),
+              AppColors.accent.withValues(alpha: 0.8),
                 ],
               ),
             ),
@@ -193,7 +193,7 @@ class NewsSection extends StatelessWidget {
                   // Title
                   Text(
                     AppLocalizations.translate(titleKey, languageProvider.currentLocale.languageCode),
-                    style: AppTextStyles.heading4.copyWith(
+                    style: AppTextStyles.headingSmall.copyWith(
                       color: AppColors.textPrimary,
                       height: 1.3,
                     ),
@@ -207,7 +207,7 @@ class NewsSection extends StatelessWidget {
                   Expanded(
                     child: Text(
                       AppLocalizations.translate(descKey, languageProvider.currentLocale.languageCode),
-                      style: AppTextStyles.getBody1(isArabic).copyWith(
+                      style: AppTextStyles.bodyMedium.copyWith(
                         color: AppColors.textSecondary,
                         height: 1.6,
                       ),
@@ -228,8 +228,8 @@ class NewsSection extends StatelessWidget {
                       children: [
                         Text(
                           AppLocalizations.translate('read_more', languageProvider.currentLocale.languageCode),
-                          style: AppTextStyles.getBody1(isArabic).copyWith(
-                            color: AppColors.primaryBlue,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.primary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -237,7 +237,7 @@ class NewsSection extends StatelessWidget {
                         Icon(
                           isArabic ? Icons.arrow_back : Icons.arrow_forward,
                           size: 16,
-                          color: AppColors.primaryBlue,
+                          color: AppColors.primary,
                         ),
                       ],
                     ),
