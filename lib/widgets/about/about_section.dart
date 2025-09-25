@@ -161,15 +161,12 @@ class AboutSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(40),
       decoration: BoxDecoration(
-        color: AppColors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: Border.all(
+          color: AppColors.white.withOpacity(0.1),
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,8 +190,7 @@ class AboutSection extends StatelessWidget {
               Expanded(
                 child: Text(
                   AppLocalizations.translate('about_overview_title', languageProvider.currentLocale.languageCode),
-                  style: AppTextStyles.headingMedium.copyWith(
-                    color: AppColors.textPrimary,
+                  style: AppTextStyles.cardTitleOnTransparent.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -207,9 +203,8 @@ class AboutSection extends StatelessWidget {
           // Content
           Text(
             AppLocalizations.translate('about_overview_content', languageProvider.currentLocale.languageCode),
-            style: AppTextStyles.bodyLarge.copyWith(
+            style: AppTextStyles.cardBodyOnTransparent.copyWith(
               height: 1.7,
-              color: AppColors.textSecondary,
             ),
           ),
           
@@ -235,8 +230,8 @@ class AboutSection extends StatelessWidget {
       children: [
         Text(
           'Key Strengths',
-          style: AppTextStyles.titleMedium.copyWith(
-            color: AppColors.textPrimary,
+          style: AppTextStyles.cardTitleOnTransparent.copyWith(
+            fontSize: 20,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -314,19 +309,12 @@ class AboutSection extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: AppColors.white,
+          color: Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: accentColor.withOpacity(0.1),
+            color: accentColor.withOpacity(0.2),
             width: 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadowLight,
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -337,12 +325,12 @@ class AboutSection extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.1),
+                    color: accentColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     icon,
-                    color: accentColor,
+                    color: AppColors.white,
                     size: 24,
                   ),
                 ),
@@ -418,7 +406,7 @@ class AboutSection extends StatelessWidget {
           child: _buildModernStatItem(
             '12',
             AppLocalizations.translate('subsidiaries_count', languageProvider.currentLocale.languageCode),
-            Icons.business_center_rounded,
+            Icons.apartment_rounded,
           ),
         ),
         _buildStatDivider(),
@@ -462,7 +450,7 @@ class AboutSection extends StatelessWidget {
               child: _buildModernStatItem(
                 '12',
                 AppLocalizations.translate('subsidiaries_count', languageProvider.currentLocale.languageCode),
-                Icons.business_center_rounded,
+                Icons.apartment_rounded,
               ),
             ),
             const SizedBox(width: 20),

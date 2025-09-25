@@ -19,16 +19,8 @@ class ContactSection extends StatelessWidget {
         
         return Container(
           width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                AppColors.surface,
-                AppColors.surface.withValues(alpha: 0.8),
-                AppColors.primary.withValues(alpha: 0.05),
-              ],
-            ),
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
           ),
           child: Stack(
             children: [
@@ -126,57 +118,98 @@ class ContactSection extends StatelessWidget {
   Widget _buildSectionHeader(BuildContext context, bool isArabic, bool isMobile, bool isTablet) {
     return Column(
       children: [
-        // Badge
+        // Modern Badge
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.primary.withValues(alpha: 0.1),
-                AppColors.accent.withValues(alpha: 0.1),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20),
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(25),
             border: Border.all(
               color: AppColors.primary.withValues(alpha: 0.2),
               width: 1,
             ),
           ),
-          child: Text(
-            AppLocalizations.translate('contact_badge', isArabic ? 'ar' : 'en'),
-            style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.accent],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                AppLocalizations.translate('contact_badge', isArabic ? 'ar' : 'en'),
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ],
           ),
         ),
         
         const SizedBox(height: 24),
         
-        // Title
-        Text(
-          AppLocalizations.translate('contact_title', isArabic ? 'ar' : 'en'),
-          style: AppTextStyles.displayMedium.copyWith(
-            fontSize: isMobile ? 32 : (isTablet ? 40 : 48),
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
+        // Enhanced Main Title
+        Container(
+          constraints: BoxConstraints(maxWidth: isMobile ? double.infinity : 800),
+          child: ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [AppColors.primary, AppColors.accent],
+            ).createShader(bounds),
+            child: Text(
+              AppLocalizations.translate('contact_title', isArabic ? 'ar' : 'en'),
+              style: AppTextStyles.displayLarge.copyWith(
+                fontSize: isMobile ? 32 : isTablet ? 40 : 48,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                height: 1.2,
+                letterSpacing: -0.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
-          textAlign: TextAlign.center,
         ),
         
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         
-        // Subtitle
+        // Enhanced Subtitle with decorative elements
         Container(
-          constraints: BoxConstraints(maxWidth: isMobile ? double.infinity : 600),
-          child: Text(
-            AppLocalizations.translate('contact_subtitle', isArabic ? 'ar' : 'en'),
-            style: AppTextStyles.bodyLarge.copyWith(
-              fontSize: isMobile ? 16 : 18,
-              color: AppColors.textSecondary,
-              height: 1.6,
-            ),
-            textAlign: TextAlign.center,
+          constraints: BoxConstraints(maxWidth: isMobile ? double.infinity : 700),
+          child: Column(
+            children: [
+              // Decorative line
+              Container(
+                width: 60,
+                height: 3,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.accent],
+                  ),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              
+              const SizedBox(height: 20),
+              
+              Text(
+                AppLocalizations.translate('contact_subtitle', isArabic ? 'ar' : 'en'),
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontSize: isMobile ? 16 : 18,
+                  color: AppColors.textSecondary,
+                  height: 1.6,
+                  fontWeight: FontWeight.w400,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ),
         ),
       ],
@@ -228,381 +261,684 @@ class ContactSection extends StatelessWidget {
 
   Widget _buildContactInfo(BuildContext context, bool isArabic, bool isMobile, bool isTablet) {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: EdgeInsets.all(isMobile ? 24 : 32),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppColors.lightGray,
+          color: AppColors.primary.withValues(alpha: 0.08),
           width: 1,
         ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section title
-          Text(
-            AppLocalizations.translate('contact_info', isArabic ? 'ar' : 'en'),
-            style: AppTextStyles.headingMedium.copyWith(
-              fontSize: isMobile ? 20 : 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          Text(
-            AppLocalizations.translate('contact_info_subtitle', isArabic ? 'ar' : 'en'),
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Contact items
-          _buildContactInfoItem(
-            icon: Icons.location_on_outlined,
-            title: AppLocalizations.translate('address_title', isArabic ? 'ar' : 'en'),
-            subtitle: AppLocalizations.translate('address', isArabic ? 'ar' : 'en'),
-            isArabic: isArabic,
-          ),
-          
-          const SizedBox(height: 24),
-          
-          _buildContactInfoItem(
-            icon: Icons.phone_outlined,
-            title: AppLocalizations.translate('phone_title', isArabic ? 'ar' : 'en'),
-            subtitle: AppLocalizations.translate('phone', isArabic ? 'ar' : 'en'),
-            isArabic: isArabic,
-          ),
-          
-          const SizedBox(height: 24),
-          
-          _buildContactInfoItem(
-            icon: Icons.email_outlined,
-            title: AppLocalizations.translate('email_title', isArabic ? 'ar' : 'en'),
-            subtitle: AppLocalizations.translate('email_address', isArabic ? 'ar' : 'en'),
-            isArabic: isArabic,
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Business hours
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColors.primary.withValues(alpha: 0.05),
-                  AppColors.accent.withValues(alpha: 0.05),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                width: 1,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time_outlined,
-                      color: AppColors.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      AppLocalizations.translate('business_hours', isArabic ? 'ar' : 'en'),
-                      style: AppTextStyles.labelLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  AppLocalizations.translate('business_hours_details', isArabic ? 'ar' : 'en'),
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContactForm(BuildContext context, bool isArabic, bool isMobile, bool isTablet) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-        border: Border.all(
-          color: AppColors.lightGray,
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Form title
-          Text(
-            AppLocalizations.translate('send_message', isArabic ? 'ar' : 'en'),
-            style: AppTextStyles.headingMedium.copyWith(
-              fontSize: isMobile ? 20 : 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          
-          const SizedBox(height: 8),
-          
-          Text(
-            AppLocalizations.translate('send_message_subtitle', isArabic ? 'ar' : 'en'),
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Form fields
-          _buildFormField(
-            label: AppLocalizations.translate('full_name', isArabic ? 'ar' : 'en'),
-            hint: AppLocalizations.translate('full_name_hint', isArabic ? 'ar' : 'en'),
-            icon: Icons.person_outline,
-          ),
-          
-          const SizedBox(height: 20),
-          
-          _buildFormField(
-            label: AppLocalizations.translate('email_label', isArabic ? 'ar' : 'en'),
-            hint: AppLocalizations.translate('email_hint', isArabic ? 'ar' : 'en'),
-            icon: Icons.email_outlined,
-          ),
-          
-          const SizedBox(height: 20),
-          
-          _buildFormField(
-            label: AppLocalizations.translate('phone_label', isArabic ? 'ar' : 'en'),
-            hint: AppLocalizations.translate('phone_hint', isArabic ? 'ar' : 'en'),
-            icon: Icons.phone_outlined,
-          ),
-          
-          const SizedBox(height: 20),
-          
-          _buildFormField(
-            label: AppLocalizations.translate('message_label', isArabic ? 'ar' : 'en'),
-            hint: AppLocalizations.translate('message_hint', isArabic ? 'ar' : 'en'),
-            icon: Icons.message_outlined,
-            maxLines: 4,
-          ),
-          
-          const SizedBox(height: 32),
-          
-          // Submit button
-          SizedBox(
-            width: double.infinity,
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.accent],
-                ),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle form submission
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.send_outlined,
-                      color: AppColors.surface,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      AppLocalizations.translate('send_message_button', isArabic ? 'ar' : 'en'),
-                      style: AppTextStyles.buttonLarge.copyWith(
-                        color: AppColors.surface,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContactInfoItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required bool isArabic,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.primary.withValues(alpha: 0.1),
-                AppColors.accent.withValues(alpha: 0.1),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppColors.primary.withValues(alpha: 0.2),
-              width: 1,
-            ),
-          ),
-          child: Icon(
-            icon,
-            color: AppColors.primary,
-            size: 20,
-          ),
-        ),
-        
-        const SizedBox(width: 16),
-        
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          // Enhanced Section title with icon
+          Row(
             children: [
-              Text(
-                title,
-                style: AppTextStyles.labelLarge.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.primary, AppColors.accent],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  Icons.contact_support_outlined,
+                  color: AppColors.surface,
+                  size: 20,
                 ),
               ),
               
-              const SizedBox(height: 4),
+              const SizedBox(width: 16),
               
-              Text(
-                subtitle,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                  height: 1.4,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.translate('contact_info', isArabic ? 'ar' : 'en'),
+                      style: AppTextStyles.headingMedium.copyWith(
+                        fontSize: isMobile ? 20 : 24,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                        height: 1.2,
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 4),
+                    
+                    Text(
+                      AppLocalizations.translate('contact_info_subtitle', isArabic ? 'ar' : 'en'),
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-      ],
+          
+          const SizedBox(height: 32),
+          
+          // Contact items with enhanced styling
+          _buildModernContactInfoItem(
+            icon: Icons.location_on_outlined,
+            title: AppLocalizations.translate('address_title', isArabic ? 'ar' : 'en'),
+            subtitle: AppLocalizations.translate('address', isArabic ? 'ar' : 'en'),
+            onTap: () {
+              // Handle address tap - could open maps
+            },
+          ),
+          
+          _buildModernContactInfoItem(
+            icon: Icons.phone_outlined,
+            title: AppLocalizations.translate('phone_title', isArabic ? 'ar' : 'en'),
+            subtitle: AppLocalizations.translate('phone', isArabic ? 'ar' : 'en'),
+            onTap: () {
+              // Handle phone tap - could make call
+            },
+          ),
+          
+          _buildModernContactInfoItem(
+            icon: Icons.email_outlined,
+            title: AppLocalizations.translate('email_title', isArabic ? 'ar' : 'en'),
+            subtitle: AppLocalizations.translate('email_address', isArabic ? 'ar' : 'en'),
+            onTap: () {
+              // Handle email tap - could open email client
+            },
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // Enhanced Business hours
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.15),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primary.withValues(alpha: 0.2),
+                        AppColors.accent.withValues(alpha: 0.2),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.access_time_outlined,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
+                ),
+                
+                const SizedBox(width: 16),
+                
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.translate('business_hours', isArabic ? 'ar' : 'en'),
+                        style: AppTextStyles.labelLarge.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                          fontSize: 16,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 4),
+                      
+                      Text(
+                        AppLocalizations.translate('business_hours_details', isArabic ? 'ar' : 'en'),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildFormField({
+  Widget _buildModernContactInfoItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 800),
+        tween: Tween(begin: 0.0, end: 1.0),
+        builder: (context, value, child) {
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            child: Transform.translate(
+              offset: Offset(0, 20 * (1 - value)),
+              child: Opacity(
+                opacity: value,
+                child: GestureDetector(
+                  onTap: onTap,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: AppColors.white.withOpacity(0.1),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        TweenAnimationBuilder<double>(
+                          duration: Duration(milliseconds: 600 + (value * 200).round()),
+                          tween: Tween(begin: 0.0, end: 1.0),
+                          builder: (context, iconValue, child) {
+                            return Transform.scale(
+                              scale: 0.8 + (iconValue * 0.2),
+                              child: Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [
+                                      AppColors.primary,
+                                      AppColors.accent,
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.primary.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  icon,
+                                  color: AppColors.white,
+                                  size: 24,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TweenAnimationBuilder<double>(
+                                duration: Duration(milliseconds: 700 + (value * 300).round()),
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                builder: (context, titleValue, child) {
+                                  return Transform.translate(
+                                    offset: Offset(20 * (1 - titleValue), 0),
+                                    child: Opacity(
+                                      opacity: titleValue,
+                                      child: Text(
+                                        title,
+                                        style: AppTextStyles.bodyLarge.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.textPrimary,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 4),
+                              TweenAnimationBuilder<double>(
+                                duration: Duration(milliseconds: 800 + (value * 400).round()),
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                builder: (context, subtitleValue, child) {
+                                  return Transform.translate(
+                                    offset: Offset(20 * (1 - subtitleValue), 0),
+                                    child: Opacity(
+                                      opacity: subtitleValue,
+                                      child: Text(
+                                        subtitle,
+                                        style: AppTextStyles.bodyMedium.copyWith(
+                                          color: AppColors.textSecondary,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        TweenAnimationBuilder<double>(
+                          duration: Duration(milliseconds: 900 + (value * 500).round()),
+                          tween: Tween(begin: 0.0, end: 1.0),
+                          builder: (context, arrowValue, child) {
+                            return Transform.scale(
+                              scale: arrowValue,
+                              child: Icon(
+                                Icons.arrow_forward_ios,
+                                color: AppColors.textSecondary,
+                                size: 16,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildModernFormField({
     required String label,
     required String hint,
     required IconData icon,
     int maxLines = 1,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: AppTextStyles.labelMedium.copyWith(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 800),
+      tween: Tween(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, 30 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TweenAnimationBuilder<double>(
+                  duration: Duration(milliseconds: 600 + (value * 200).round()),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  builder: (context, labelValue, child) {
+                    return Transform.translate(
+                      offset: Offset(10 * (1 - labelValue), 0),
+                      child: Opacity(
+                        opacity: labelValue,
+                        child: Text(
+                          label,
+                          style: AppTextStyles.labelMedium.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 12),
+                TweenAnimationBuilder<double>(
+                  duration: Duration(milliseconds: 700 + (value * 300).round()),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  builder: (context, fieldValue, child) {
+                    return Transform.scale(
+                      scale: 0.95 + (fieldValue * 0.05),
+                      child: Opacity(
+                        opacity: fieldValue,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.text,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            child: TextFormField(
+                              maxLines: maxLines,
+                              decoration: InputDecoration(
+                                hintText: hint,
+                                prefixIcon: TweenAnimationBuilder<double>(
+                                  duration: Duration(milliseconds: 800 + (value * 400).round()),
+                                  tween: Tween(begin: 0.0, end: 1.0),
+                                  builder: (context, iconValue, child) {
+                                    return Transform.scale(
+                                      scale: 0.8 + (iconValue * 0.2),
+                                      child: Container(
+                                        margin: const EdgeInsets.all(12),
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              AppColors.primary.withOpacity(0.1),
+                                              AppColors.accent.withOpacity(0.1),
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Icon(
+                                          icon,
+                                          color: AppColors.primary,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                filled: true,
+                                fillColor: Colors.transparent,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: AppColors.lightGray.withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: AppColors.lightGray.withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(
+                                    color: AppColors.primary,
+                                    width: 2,
+                                  ),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: maxLines > 1 ? 20 : 18,
+                                ),
+                                hintStyle: AppTextStyles.bodyMedium.copyWith(
+                                  color: AppColors.textSecondary.withOpacity(0.6),
+                                ),
+                              ),
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: AppColors.textPrimary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-        
-        const SizedBox(height: 8),
-        
-        TextFormField(
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(
-              icon,
-              color: AppColors.textSecondary,
-              size: 20,
-            ),
-            filled: true,
-            fillColor: AppColors.lightGray.withValues(alpha: 0.3),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppColors.lightGray,
-                width: 1,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppColors.lightGray,
-                width: 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppColors.primary,
-                width: 2,
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary.withValues(alpha: 0.7),
-            ),
-          ),
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textPrimary,
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
+
+  Widget _buildContactForm(BuildContext context, bool isArabic, bool isMobile, bool isTablet) {
+    return TweenAnimationBuilder<double>(
+      duration: const Duration(milliseconds: 1000),
+      tween: Tween(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, 50 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: Container(
+              padding: EdgeInsets.all(isMobile ? 24 : 32),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: AppColors.accent.withOpacity(0.08),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Enhanced Form title with icon
+                  TweenAnimationBuilder<double>(
+                    duration: Duration(milliseconds: 600 + (value * 200).round()),
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    builder: (context, titleValue, child) {
+                      return Transform.translate(
+                        offset: Offset(30 * (1 - titleValue), 0),
+                        child: Opacity(
+                          opacity: titleValue,
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [AppColors.accent, AppColors.primary],
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.accent.withOpacity(0.3),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 6),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.send_outlined,
+                                  color: AppColors.surface,
+                                  size: 20,
+                                ),
+                              ),
+                              
+                              const SizedBox(width: 16),
+                              
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      AppLocalizations.translate('send_message', isArabic ? 'ar' : 'en'),
+                                      style: AppTextStyles.headingMedium.copyWith(
+                                        fontSize: isMobile ? 20 : 24,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textPrimary,
+                                        height: 1.2,
+                                      ),
+                                    ),
+                                    
+                                    const SizedBox(height: 4),
+                                    
+                                    Text(
+                                      AppLocalizations.translate('send_message_subtitle', isArabic ? 'ar' : 'en'),
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Enhanced Form fields with staggered animations
+                  TweenAnimationBuilder<double>(
+                    duration: Duration(milliseconds: 800 + (value * 300).round()),
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    builder: (context, fieldValue, child) {
+                      return Column(
+                        children: [
+                          _buildModernFormField(
+                            label: AppLocalizations.translate('full_name', isArabic ? 'ar' : 'en'),
+                            hint: AppLocalizations.translate('full_name_hint', isArabic ? 'ar' : 'en'),
+                            icon: Icons.person_outline,
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          _buildModernFormField(
+                            label: AppLocalizations.translate('email_label', isArabic ? 'ar' : 'en'),
+                            hint: AppLocalizations.translate('email_hint', isArabic ? 'ar' : 'en'),
+                            icon: Icons.email_outlined,
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          _buildModernFormField(
+                            label: AppLocalizations.translate('phone_label', isArabic ? 'ar' : 'en'),
+                            hint: AppLocalizations.translate('phone_hint', isArabic ? 'ar' : 'en'),
+                            icon: Icons.phone_outlined,
+                          ),
+                          
+                          const SizedBox(height: 20),
+                          
+                          _buildModernFormField(
+                            label: AppLocalizations.translate('message_label', isArabic ? 'ar' : 'en'),
+                            hint: AppLocalizations.translate('message_hint', isArabic ? 'ar' : 'en'),
+                            icon: Icons.message_outlined,
+                            maxLines: 4,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  
+                  const SizedBox(height: 32),
+                  
+                  // Enhanced Submit button with animation
+                  TweenAnimationBuilder<double>(
+                    duration: Duration(milliseconds: 1000 + (value * 400).round()),
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    builder: (context, buttonValue, child) {
+                      return Transform.scale(
+                        scale: 0.9 + (buttonValue * 0.1),
+                        child: Opacity(
+                          opacity: buttonValue,
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [AppColors.primary, AppColors.accent],
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppColors.primary.withOpacity(0.4),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
+                                      spreadRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(16),
+                                    onTap: () {
+                                      // Handle form submission
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          TweenAnimationBuilder<double>(
+                                            duration: Duration(milliseconds: 1200 + (value * 500).round()),
+                                            tween: Tween(begin: 0.0, end: 1.0),
+                                            builder: (context, iconValue, child) {
+                                              return Transform.scale(
+                                                scale: 0.8 + (iconValue * 0.2),
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(6),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors.surface.withOpacity(0.2),
+                                                    borderRadius: BorderRadius.circular(8),
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.send_outlined,
+                                                    color: AppColors.surface,
+                                                    size: 18,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          const SizedBox(width: 12),
+                                          TweenAnimationBuilder<double>(
+                                            duration: Duration(milliseconds: 1300 + (value * 600).round()),
+                                            tween: Tween(begin: 0.0, end: 1.0),
+                                            builder: (context, textValue, child) {
+                                              return Transform.translate(
+                                                offset: Offset(10 * (1 - textValue), 0),
+                                                child: Opacity(
+                                                  opacity: textValue,
+                                                  child: Text(
+                                                    AppLocalizations.translate('send_message_button', isArabic ? 'ar' : 'en'),
+                                                    style: AppTextStyles.buttonLarge.copyWith(
+                                                      color: AppColors.surface,
+                                                      fontWeight: FontWeight.w600,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 }

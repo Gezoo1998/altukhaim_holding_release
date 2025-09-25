@@ -186,17 +186,10 @@ class ServicesSection extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(ResponsiveHelper.isMobile(screenWidth) ? 24 : 32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
         border: Border.all(
-          color: AppColors.lightGray.withValues(alpha: 0.3),
+          color: AppColors.white.withOpacity(0.1),
           width: 1,
         ),
       ),

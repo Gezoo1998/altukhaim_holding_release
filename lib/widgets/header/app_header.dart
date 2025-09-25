@@ -16,13 +16,15 @@ class AppHeader extends StatefulWidget implements PreferredSizeWidget {
   State<AppHeader> createState() => _AppHeaderState();
 
   @override
-  Size get preferredSize => const Size.fromHeight(80);
+  Size get preferredSize => const Size.fromHeight(90);
 }
 
 class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
   bool _isMenuOpen = false;
   late AnimationController _menuController;
   late Animation<double> _menuAnimation;
+  late AnimationController _logoController;
+  late Animation<double> _logoAnimation;
 
   @override
   void initState() {
@@ -35,11 +37,24 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
       parent: _menuController,
       curve: Curves.easeInOut,
     );
+    
+    _logoController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    _logoAnimation = CurvedAnimation(
+      parent: _logoController,
+      curve: Curves.elasticOut,
+    );
+    
+    // Start logo animation
+    _logoController.forward();
   }
 
   @override
   void dispose() {
     _menuController.dispose();
+    _logoController.dispose();
     super.dispose();
   }
 
@@ -52,53 +67,39 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
     final isTablet = screenWidth < 1024;
 
     return Container(
-      height: 80,
+      height: 90,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.surface.withOpacity(0.95),
-            AppColors.surface.withOpacity(0.98),
-          ],
-        ),
+        color: Colors.transparent,
         border: Border(
           bottom: BorderSide(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withOpacity(0.08),
             width: 1,
           ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-            spreadRadius: 0,
-          ),
-        ],
       ),
       child: ClipRRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 20 : (isTablet ? 32 : 48),
+              horizontal: isMobile ? 24 : (isTablet ? 40 : 56),
+              vertical: 8,
             ),
             child: Row(
               children: [
                 // Logo
-                _buildLogo(languageProvider, isMobile),
+                _buildModernLogo(languageProvider, isMobile, screenWidth),
                 const Spacer(),
 
                 if (!isMobile) ...[
                   // Desktop Navigation
                   _buildDesktopNavigation(languageProvider),
-                  const SizedBox(width: 32),
+                  const SizedBox(width: 40),
                   _buildLanguageToggle(languageProvider),
                 ] else ...[
                   // Mobile Language Toggle
                   _buildLanguageToggle(languageProvider),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 20),
                   // Mobile Menu Button
                   _buildMobileMenuButton(),
                 ],
@@ -110,68 +111,132 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildLogo(LanguageProvider languageProvider, bool isMobile) {
-    return AnimatedSection(
-      duration : const Duration(milliseconds: 100),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: isMobile ? 40 : 48,
-            height: isMobile ? 40 : 48,
-            decoration: BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.business_center_rounded,
-              color: AppColors.surface,
-              size: isMobile ? 20 : 24,
+  Widget _buildModernLogo(LanguageProvider languageProvider, bool isMobile, double screenWidth) {
+    return AnimatedBuilder(
+      animation: _logoAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _logoAnimation.value,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: GestureDetector(
+              onTap: () {
+                if (widget.onNavigate != null) {
+                  widget.onNavigate!('home');
+                }
+              },
+              child: TweenAnimationBuilder<double>(
+                duration: const Duration(milliseconds: 200),
+                tween: Tween(begin: 0.0, end: 1.0),
+                builder: (context, value, child) {
+                  return Transform.scale(
+                    scale: 1.0 + (value * 0.02),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Official Logo
+                          Container(
+                            width: isMobile ? 48 : 56,
+                            height: isMobile ? 48 : 56,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primary.withOpacity(0.15),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.asset(
+                                'assets/images/nawaf_logo.png',
+                                fit: BoxFit.contain,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      gradient: AppColors.primaryGradient,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Icon(
+                                      Icons.business_center_rounded,
+                                      color: Colors.white,
+                                      size: isMobile ? 24 : 28,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          
+                          if (screenWidth > 600) ...[
+                            const SizedBox(width: 16),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppLocalizations.translate(
+                                    'hero_title',
+                                    languageProvider.currentLocale.languageCode,
+                                  ),
+                                  style: AppTextStyles.headingSmall.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: -0.8,
+                                    fontSize: screenWidth > 768 ? 20 : 18,
+                                    shadows: [
+                                      Shadow(
+                                        color: AppColors.primary.withOpacity(0.3),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                                const SizedBox(height: 2),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    AppLocalizations.translate(
+                                      'company_tagline',
+                                      languageProvider.currentLocale.languageCode,
+                                    ),
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: Colors.white.withOpacity(0.8),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 11,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
-          if (!isMobile) ...[
-            const SizedBox(width: 16),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.translate(
-                    'hero_title',
-                    languageProvider.currentLocale.languageCode,
-                  ),
-                  style: AppTextStyles.headingSmall.copyWith(
-                    color: AppColors.textPrimary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.5,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-                Text(
-                  AppLocalizations.translate(
-                    'company_tagline',
-                    languageProvider.currentLocale.languageCode,
-                  ),
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -239,44 +304,76 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: HoverAnimationWrapper(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: TextButton(
-                    onPressed: () {
-                      if (widget.onNavigate != null) {
-                        widget.onNavigate!(item['key']! as String);
-                      }
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.textPrimary,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  onEnter: (_) {},
+                  onExit: (_) {},
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.transparent,
+                          AppColors.primary.withOpacity(0.05),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      overlayColor: AppColors.primary.withOpacity(0.1),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          item['icon'] as IconData,
-                          size: 18,
-                          color: AppColors.textSecondary,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          item['label']! as String,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                    child: TweenAnimationBuilder<double>(
+                      duration: const Duration(milliseconds: 200),
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      builder: (context, value, child) {
+                        return Transform.scale(
+                          scale: 1.0 + (value * 0.02),
+                          child: TextButton(
+                            onPressed: () {
+                              if (widget.onNavigate != null) {
+                                widget.onNavigate!(item['key']! as String);
+                              }
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.textPrimary,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              overlayColor: AppColors.primary.withOpacity(0.1),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TweenAnimationBuilder<double>(
+                                  duration: const Duration(milliseconds: 300),
+                                  tween: Tween(begin: 0.0, end: 1.0),
+                                  builder: (context, iconValue, child) {
+                                    return Transform.rotate(
+                                      angle: iconValue * 0.1,
+                                      child: Icon(
+                                        item['icon'] as IconData,
+                                        size: 18,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  item['label']! as String,
+                                  style: AppTextStyles.bodyMedium.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -292,6 +389,10 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
     return AnimatedSection(
       duration: const Duration(milliseconds: 400),
       child: Container(
+        constraints: const BoxConstraints(
+          minWidth: 120,
+          maxWidth: 160,
+        ),
         decoration: BoxDecoration(
           color: AppColors.surface.withOpacity(0.8),
           border: Border.all(
@@ -310,8 +411,12 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildLanguageButton('العربية', 'ar', languageProvider),
-            _buildLanguageButton('EN', 'en', languageProvider),
+            Flexible(
+              child: _buildLanguageButton('العربية', 'ar', languageProvider),
+            ),
+            Flexible(
+              child: _buildLanguageButton('EN', 'en', languageProvider),
+            ),
           ],
         ),
       ),
@@ -327,34 +432,57 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
         languageProvider.currentLocale.languageCode == languageCode;
 
     return HoverAnimationWrapper(
-      child: GestureDetector(
-        onTap: () {
-          languageProvider.setLanguage(languageCode);
-        },
-        child: AnimatedContainer(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: TweenAnimationBuilder<double>(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            gradient: isSelected ? AppColors.primaryGradient : null,
-            color: isSelected ? null : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+          tween: Tween(begin: 0.0, end: 1.0),
+          builder: (context, value, child) {
+            return Transform.scale(
+              scale: 1.0 + (value * 0.05),
+              child: GestureDetector(
+                onTap: () {
+                  languageProvider.setLanguage(languageCode);
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  constraints: const BoxConstraints(
+                    minWidth: 50,
+                    maxWidth: 70,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    gradient: isSelected ? AppColors.primaryGradient : null,
+                    color: isSelected ? null : Colors.transparent,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: isSelected
+                        ? [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: AnimatedDefaultTextStyle(
+                    duration: const Duration(milliseconds: 200),
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: isSelected ? AppColors.surface : AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
                     ),
-                  ]
-                : null,
-          ),
-          child: Text(
-            text,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: isSelected ? AppColors.surface : AppColors.textSecondary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+                    child: Text(
+                      text,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

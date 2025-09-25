@@ -13,6 +13,7 @@ class AppLocalizations {
       'hero_title': 'Nawaf Al Tokheim Holding',
       'hero_subtitle': 'Leading Saudi Holding Company Building Tomorrow\'s Success',
       'hero_description': 'Empowering businesses across diverse sectors with strategic investments and innovative solutions for sustainable growth in the Kingdom of Saudi Arabia.',
+      'company_tagline': 'Excellence in Investment & Growth',
       'get_in_touch': 'Get in Touch',
       'learn_more': 'Learn More',
       
@@ -55,6 +56,7 @@ class AppLocalizations {
       'testimonials_subtitle': 'Trusted by leading businesses across Saudi Arabia',
       'satisfied_clients': 'Satisfied Clients',
       'satisfaction_rate': 'Satisfaction Rate',
+      'success_rate': 'Success Rate',
       'support_available': '24/7 Support Available',
       'financial_services': 'Financial Services',
       'financial_desc': 'Comprehensive financial planning and investment solutions',
@@ -138,6 +140,7 @@ class AppLocalizations {
       'hero_title': 'مجموعة نواف التخيم القابضة',
       'hero_subtitle': 'شركة قابضة سعودية رائدة تبني نجاح الغد',
       'hero_description': 'تمكين الأعمال عبر قطاعات متنوعة من خلال الاستثمارات الاستراتيجية والحلول المبتكرة للنمو المستدام في المملكة العربية السعودية.',
+      'company_tagline': 'التميز في الاستثمار والنمو',
       'get_in_touch': 'تواصل معنا',
       'learn_more': 'اعرف المزيد',
       
@@ -181,6 +184,7 @@ class AppLocalizations {
       'testimonials_subtitle': 'موثوق من قبل الشركات الرائدة في المملكة العربية السعودية',
       'satisfied_clients': 'العملاء الراضون',
       'satisfaction_rate': 'معدل الرضا',
+      'success_rate': 'معدل النجاح',
       'support_available': 'دعم متاح 24/7',
       'financial_services': 'الخدمات المالية',
       'financial_desc': 'التخطيط المالي الشامل والحلول الاستثمارية',

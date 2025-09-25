@@ -174,6 +174,36 @@ class AppTextStyles {
     height: 1.5,
   );
 
+  // Section Styles for Transparent Backgrounds
+  static TextStyle get sectionTitleOnTransparent => GoogleFonts.inter(
+    fontSize: 40,
+    fontWeight: FontWeight.w700,
+    color: AppColors.white,
+    height: 1.2,
+    letterSpacing: -0.01,
+  );
+
+  static TextStyle get sectionSubtitleOnTransparent => GoogleFonts.inter(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: AppColors.white.withOpacity(0.9),
+    height: 1.6,
+  );
+
+  static TextStyle get cardTitleOnTransparent => GoogleFonts.inter(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    color: AppColors.white,
+    height: 1.3,
+  );
+
+  static TextStyle get cardBodyOnTransparent => GoogleFonts.inter(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.white.withOpacity(0.8),
+    height: 1.5,
+  );
+
   static TextStyle get sectionTitle => GoogleFonts.inter(
     fontSize: 40,
     fontWeight: FontWeight.w700,

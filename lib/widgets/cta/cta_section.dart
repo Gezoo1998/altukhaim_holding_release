@@ -138,8 +138,11 @@ class CTASection extends StatelessWidget {
     required bool isArabic,
   }) {
     return Container(
-      width: isMobile ? double.infinity : (isTablet ? 250 : 280),
-      height: 60,
+      width: isMobile ? double.infinity : (isTablet ? 280 : 320),
+      constraints: BoxConstraints(
+        minHeight: 60,
+        maxHeight: isMobile ? 80 : 60,
+      ),
       decoration: BoxDecoration(
         color: isPrimary ? AppColors.accent : Colors.transparent,
         border: isPrimary ? null : Border.all(
@@ -161,25 +164,35 @@ class CTASection extends StatelessWidget {
           onTap: onPressed,
           borderRadius: BorderRadius.circular(30),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18),
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 20 : 30, 
+              vertical: 18,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  text,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: isMobile ? 16 : 18,
-                    fontWeight: FontWeight.w600,
-                    color: isPrimary ? AppColors.darkGray : AppColors.white,
+                Flexible(
+                  child: Text(
+                    text,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      fontSize: isMobile ? 14 : (isTablet ? 16 : 18),
+                      fontWeight: FontWeight.w600,
+                      color: isPrimary ? AppColors.darkGray : AppColors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: isMobile ? 2 : 1,
+                    overflow: TextOverflow.ellipsis,
+                    textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
                   ),
                 ),
                 
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 
                 Icon(
-                  Icons.arrow_forward,
+                  isArabic ? Icons.arrow_back : Icons.arrow_forward,
                   color: isPrimary ? AppColors.darkGray : AppColors.white,
-                  size: 20,
+                  size: isMobile ? 18 : 20,
                 ),
               ],
             ),

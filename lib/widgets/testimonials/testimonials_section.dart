@@ -1,475 +1,800 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/language_provider.dart';
-import '../../utils/app_localizations.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../providers/language_provider.dart';
+import '../../utils/app_localizations.dart';
+import '../../utils/responsive_helper.dart';
 import '../common/animated_section.dart';
 
-class TestimonialsSection extends StatelessWidget {
-  const TestimonialsSection({Key? key}) : super(key: key);
+class TestimonialsSection extends StatefulWidget {
+  const TestimonialsSection({super.key});
+
+  @override
+  State<TestimonialsSection> createState() => _TestimonialsSectionState();
+}
+
+class _TestimonialsSectionState extends State<TestimonialsSection>
+    with TickerProviderStateMixin {
+  late PageController _pageController;
+  int _currentIndex = 0;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
-        final isArabic = languageProvider.isArabic;
-        
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            final isMobile = constraints.maxWidth < 768;
-            final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1024;
-            
-            return Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(
-                vertical: isMobile ? 80 : 120,
-                horizontal: isMobile ? 20 : 40,
-              ),
-              decoration: const BoxDecoration(
-                color: Colors.transparent,
-              ),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: Column(
-                  children: [
-                    // Section Header
-                    AnimatedSection(
-                      child: _buildSectionHeader(context, isArabic, isMobile),
-                    ),
-                    
-                    const SizedBox(height: 80),
-                    
-                    // Testimonials Grid
-                    if (isMobile)
-                      _buildMobileLayout(context, isArabic)
-                    else
-                      _buildDesktopLayout(context, isArabic, isTablet),
-                    
-                    const SizedBox(height: 80),
-                    
-                    // Trust Indicators
-                    AnimatedSection(
-                      child: _buildTrustIndicators(context, isArabic, isMobile),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
+        final isArabic = languageProvider.currentLocale.languageCode == 'ar';
+        final screenWidth = MediaQuery.of(context).size.width;
 
-  Widget _buildSectionHeader(BuildContext context, bool isArabic, bool isMobile) {
-    return Consumer<LanguageProvider>(
-      builder: (context, languageProvider, child) {
-        return Column(
-          children: [
-            // Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-               color: AppColors.primary.withOpacity(0.1),
-               borderRadius: BorderRadius.circular(20),
-               border: Border.all(
-                 color: AppColors.primary.withOpacity(0.2),
-                 width: 1,
-               ),
-             ),
-             child: Text(
-               AppLocalizations.translate('testimonials_badge', languageProvider.currentLocale.languageCode),
-               style: AppTextStyles.labelMedium.copyWith(
-                 color: AppColors.primary,
-                 fontWeight: FontWeight.w600,
-               ),
-             ),
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Title
-            Text(
-              AppLocalizations.translate('testimonials_title', languageProvider.currentLocale.languageCode),
-              style: AppTextStyles.displayMedium.copyWith(
-                fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Subtitle
-            Container(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Text(
-                AppLocalizations.translate('testimonials_subtitle', languageProvider.currentLocale.languageCode),
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
-                  height: 1.6,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildMobileLayout(BuildContext context, bool isArabic) {
-    final testimonials = _getTestimonials(isArabic);
-    
-    return Column(
-      children: testimonials.map((testimonial) {
         return Container(
-          margin: const EdgeInsets.only(bottom: 24),
-          child: _buildTestimonialCard(
-            name: testimonial['name'],
-            position: testimonial['position'],
-            company: testimonial['company'],
-            testimonial: testimonial['quote'],
-            rating: testimonial['rating'],
-            isArabic: isArabic,
-            isMobile: true,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            vertical: ResponsiveHelper.isMobile(screenWidth) ? 80 : 120,
+            horizontal: ResponsiveHelper.getHorizontalPadding(screenWidth),
           ),
-        );
-      }).toList(),
-    );
-  }
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1400),
+              child: Column(
+                children: [
+                  // Section Header
+                  AnimatedSection(
+                    duration: const Duration(milliseconds: 800),
+                    child: _buildSectionHeader(
+                      context,
+                      languageProvider,
+                      isArabic,
+                      screenWidth,
+                    ),
+                  ),
 
-  Widget _buildDesktopLayout(BuildContext context, bool isArabic, bool isTablet) {
-    final testimonials = _getTestimonials(isArabic);
-    
-    if (isTablet) {
-      return Wrap(
-        spacing: 24,
-        runSpacing: 24,
-        children: testimonials.map((testimonial) {
-          return SizedBox(
-            width: (MediaQuery.of(context).size.width - 128) / 2,
-            child: _buildTestimonialCard(
-              name: testimonial['name'],
-              position: testimonial['position'],
-              company: testimonial['company'],
-              testimonial: testimonial['quote'],
-              rating: testimonial['rating'],
-              isArabic: isArabic,
-              isMobile: false,
-            ),
-          );
-        }).toList(),
-      );
-    } else {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: testimonials.asMap().entries.map((entry) {
-          final index = entry.key;
-          final testimonial = entry.value;
-          return Expanded(
-            child: Container(
-              margin: EdgeInsets.only(
-                right: index < testimonials.length - 1 ? 24 : 0,
-              ),
-              child: _buildTestimonialCard(
-                name: testimonial['name'],
-                position: testimonial['position'],
-                company: testimonial['company'],
-                testimonial: testimonial['quote'],
-                rating: testimonial['rating'],
-                isArabic: isArabic,
-                isMobile: false,
+                  SizedBox(
+                    height: ResponsiveHelper.isMobile(screenWidth) ? 50 : 80,
+                  ),
+
+                  // Testimonials Carousel
+                  AnimatedSection(
+                    duration: const Duration(milliseconds: 1000),
+                    child: _buildTestimonialsCarousel(
+                      context,
+                      languageProvider,
+                      isArabic,
+                      screenWidth,
+                    ),
+                  ),
+
+                  SizedBox(
+                    height: ResponsiveHelper.isMobile(screenWidth) ? 50 : 80,
+                  ),
+
+                  // Trust Indicators
+                  AnimatedSection(
+                    duration: const Duration(milliseconds: 1200),
+                    child: _buildTrustIndicators(
+                      context,
+                      languageProvider,
+                      isArabic,
+                      screenWidth,
+                    ),
+                  ),
+                ],
               ),
             ),
-          );
-        }).toList(),
-      );
-    }
-  }
-
-  Widget _buildTestimonialCard({
-    required String name,
-    required String position,
-    required String company,
-    required String testimonial,
-    required int rating,
-    required bool isArabic,
-    required bool isMobile,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowMedium,
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Rating Stars
-          Row(
-            children: List.generate(5, (index) {
-              return Icon(
-                index < rating ? Icons.star : Icons.star_border,
-                color: AppColors.gold,
-                size: 20,
-              );
-            }),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // Testimonial Text
-          Text(
-            testimonial,
-            style: AppTextStyles.bodyLarge.copyWith(
-              fontStyle: FontStyle.italic,
-              height: 1.6,
-            ),
-            textAlign: isArabic ? TextAlign.right : TextAlign.left,
-          ),
-          
-          const SizedBox(height: 24),
-          
-          // Author Info
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Icon(
-                  Icons.person,
-                  color: AppColors.accent,
-                  size: 24,
-                ),
-              ),
-              
-              const SizedBox(width: 16),
-              
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: AppTextStyles.titleMedium.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      '$position, $company',
-                      style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrustIndicators(BuildContext context, bool isArabic, bool isMobile) {
-    return Consumer<LanguageProvider>(
-      builder: (context, languageProvider, child) {
-        return Container(
-          padding: EdgeInsets.all(isMobile ? 24 : 40),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.shadowLight,
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              if (isMobile) ...[
-                _buildTrustItem(
-                  context,
-                  '1000+',
-                  AppLocalizations.translate('satisfied_clients', languageProvider.currentLocale.languageCode),
-                  Icons.people_outline,
-                  isArabic,
-                ),
-                const SizedBox(height: 32),
-                _buildTrustItem(
-                  context,
-                  '98%',
-                  AppLocalizations.translate('satisfaction_rate', languageProvider.currentLocale.languageCode),
-                  Icons.thumb_up_outlined,
-                  isArabic,
-                ),
-                const SizedBox(height: 32),
-                _buildTrustItem(
-                  context,
-                  '15+',
-                  AppLocalizations.translate('years_experience', languageProvider.currentLocale.languageCode),
-                  Icons.timeline_outlined,
-                  isArabic,
-                ),
-                const SizedBox(height: 32),
-                _buildTrustItem(
-                  context,
-                  '24/7',
-                  AppLocalizations.translate('support_available', languageProvider.currentLocale.languageCode),
-                  Icons.support_agent_outlined,
-                  isArabic,
-                ),
-              ] else ...[
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildTrustItem(
-                        context,
-                        '1000+',
-                        AppLocalizations.translate('satisfied_clients', languageProvider.currentLocale.languageCode),
-                        Icons.people_outline,
-                        isArabic,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildTrustItem(
-                        context,
-                        '98%',
-                        AppLocalizations.translate('satisfaction_rate', languageProvider.currentLocale.languageCode),
-                        Icons.thumb_up_outlined,
-                        isArabic,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildTrustItem(
-                        context,
-                        '15+',
-                        AppLocalizations.translate('years_experience', languageProvider.currentLocale.languageCode),
-                        Icons.timeline_outlined,
-                        isArabic,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildTrustItem(
-                        context,
-                        '24/7',
-                        AppLocalizations.translate('support_available', languageProvider.currentLocale.languageCode),
-                        Icons.support_agent_outlined,
-                        isArabic,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
           ),
         );
       },
     );
   }
 
-  Widget _buildTrustItem(BuildContext context, String number, String label, IconData icon, bool isArabic) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    LanguageProvider languageProvider,
+    bool isArabic,
+    double screenWidth,
+  ) {
     return Column(
       children: [
+        // Modern Badge with Gradient
         Container(
-          width: 64,
-          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
-            color: AppColors.accent.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(32),
+            gradient: LinearGradient(
+              colors: [
+                AppColors.accent.withOpacity(0.15),
+                AppColors.primary.withOpacity(0.15),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(
+              color: AppColors.accent.withOpacity(0.3),
+              width: 1.5,
+            ),
           ),
-          child: Icon(
-            icon,
-            color: AppColors.accent,
-            size: 32,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.star_rounded,
+                color: AppColors.accent,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                AppLocalizations.translate(
+                  'testimonials',
+                  languageProvider.currentLocale.languageCode,
+                ),
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: AppColors.accent,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
           ),
         ),
-        
-        const SizedBox(height: 16),
-        
-        Text(
-          number,
-          style: AppTextStyles.headingLarge.copyWith(
-            color: AppColors.accent,
-            fontWeight: FontWeight.w800,
+
+        const SizedBox(height: 32),
+
+        // Enhanced Main Title
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.white, AppColors.white.withOpacity(0.8)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [AppColors.white, AppColors.accent.withOpacity(0.9)],
+            ).createShader(bounds),
+            child: Text(
+              AppLocalizations.translate(
+                'testimonials_title',
+                languageProvider.currentLocale.languageCode,
+              ),
+              style: AppTextStyles.responsiveHeading(context).copyWith(
+                color: AppColors.white,
+                fontWeight: FontWeight.w800,
+                height: 1.2,
+              ),
+              textAlign: TextAlign.center,
+              textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+            ),
           ),
         ),
-        
-        const SizedBox(height: 8),
-        
-        Text(
-          label,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+
+        const SizedBox(height: 24),
+
+        // Enhanced Subtitle
+        Container(
+          constraints: BoxConstraints(
+            maxWidth: ResponsiveHelper.isMobile(screenWidth) ? double.infinity : 700,
           ),
-          textAlign: TextAlign.center,
+          child: Text(
+            AppLocalizations.translate(
+              'testimonials_subtitle',
+              languageProvider.currentLocale.languageCode,
+            ),
+            style: AppTextStyles.bodyLarge.copyWith(
+              color: AppColors.white.withOpacity(0.85),
+              height: 1.7,
+              fontSize: ResponsiveHelper.isMobile(screenWidth) ? 16 : 18,
+            ),
+            textAlign: TextAlign.center,
+            textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+          ),
         ),
       ],
     );
   }
 
-  List<Map<String, dynamic>> _getTestimonials(bool isArabic) {
+  Widget _buildTestimonialsCarousel(
+    BuildContext context,
+    LanguageProvider languageProvider,
+    bool isArabic,
+    double screenWidth,
+  ) {
+    final testimonials = _getTestimonials(languageProvider);
+
+    return Column(
+      children: [
+        // Testimonials PageView
+        Container(
+          height: ResponsiveHelper.isMobile(screenWidth) ? 400 : 450,
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            itemCount: testimonials.length,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveHelper.isMobile(screenWidth) ? 8 : 16,
+                ),
+                child: _buildModernTestimonialCard(
+                  context,
+                  testimonials[index],
+                  isArabic,
+                  screenWidth,
+                ),
+              );
+            },
+          ),
+        ),
+
+        const SizedBox(height: 40),
+
+        // Modern Page Indicators
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            testimonials.length,
+            (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: _currentIndex == index ? 32 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                gradient: _currentIndex == index
+                    ? LinearGradient(
+                        colors: [AppColors.accent, AppColors.primary],
+                      )
+                    : null,
+                color: _currentIndex == index
+                    ? null
+                    : AppColors.white.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        // Navigation Buttons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildNavigationButton(
+              icon: isArabic ? Icons.arrow_forward_rounded : Icons.arrow_back_rounded,
+              onTap: () {
+                if (_currentIndex > 0) {
+                  _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              },
+              isEnabled: _currentIndex > 0,
+            ),
+            const SizedBox(width: 24),
+            _buildNavigationButton(
+              icon: isArabic ? Icons.arrow_back_rounded : Icons.arrow_forward_rounded,
+              onTap: () {
+                if (_currentIndex < testimonials.length - 1) {
+                  _pageController.nextPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              },
+              isEnabled: _currentIndex < testimonials.length - 1,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNavigationButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required bool isEnabled,
+  }) {
+    return InkWell(
+      onTap: isEnabled ? onTap : null,
+      borderRadius: BorderRadius.circular(25),
+      child: Container(
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          gradient: isEnabled
+              ? LinearGradient(
+                  colors: [
+                    AppColors.accent.withOpacity(0.2),
+                    AppColors.primary.withOpacity(0.2),
+                  ],
+                )
+              : null,
+          color: isEnabled ? null : AppColors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: isEnabled
+                ? AppColors.accent.withOpacity(0.3)
+                : AppColors.white.withOpacity(0.2),
+            width: 1.5,
+          ),
+        ),
+        child: Icon(
+          icon,
+          color: isEnabled ? AppColors.white : AppColors.white.withOpacity(0.5),
+          size: 20,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildModernTestimonialCard(
+    BuildContext context,
+    Map<String, String> testimonial,
+    bool isArabic,
+    double screenWidth,
+  ) {
+    return MouseRegion(
+      onEnter: (_) => setState(() {}),
+      onExit: (_) => setState(() {}),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        margin: EdgeInsets.symmetric(
+          horizontal: ResponsiveHelper.isMobile(screenWidth) ? 8 : 12,
+        ),
+        child: InkWell(
+          onTap: () {
+            // Handle testimonial card tap
+          },
+          borderRadius: BorderRadius.circular(24),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            padding: EdgeInsets.all(
+              ResponsiveHelper.isMobile(screenWidth) ? 24 : 32,
+            ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.white.withOpacity(0.08),
+                  AppColors.white.withOpacity(0.03),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: AppColors.white.withOpacity(0.15),
+                width: 1.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.accent.withOpacity(0.1),
+                  blurRadius: 30,
+                  offset: const Offset(0, 15),
+                ),
+              ],
+            ),
+            transform: Matrix4.identity(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Enhanced Quote Icon with animation
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 800),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  builder: (context, value, child) {
+                    return Transform.scale(
+                      scale: 0.8 + (0.2 * value),
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              AppColors.accent,
+                              AppColors.primary,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.accent.withOpacity(0.3),
+                              blurRadius: 15,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.format_quote_rounded,
+                          color: AppColors.white,
+                          size: 24,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+                SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 20 : 24),
+
+                // Enhanced Testimonial Text with fade-in animation
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 1000),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: Transform.translate(
+                        offset: Offset(0, 20 * (1 - value)),
+                        child: Text(
+                          testimonial['text']!,
+                          style: AppTextStyles.cardBodyOnTransparent.copyWith(
+                            fontSize: ResponsiveHelper.isMobile(screenWidth) ? 16 : 18,
+                            height: 1.7,
+                            fontStyle: FontStyle.italic,
+                          ),
+                          textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
+                SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 24 : 32),
+
+                // Enhanced Author Info with staggered animation
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 1200),
+                  tween: Tween(begin: 0.0, end: 1.0),
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: Transform.translate(
+                        offset: Offset(0, 30 * (1 - value)),
+                        child: Row(
+                          children: [
+                            // Enhanced Avatar with animation
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    AppColors.accent.withOpacity(0.3),
+                                    AppColors.primary.withOpacity(0.3),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(28),
+                                border: Border.all(
+                                  color: AppColors.white.withOpacity(0.2),
+                                  width: 2,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.accent.withOpacity(0.2),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                Icons.person_rounded,
+                                color: AppColors.white,
+                                size: 28,
+                              ),
+                            ),
+
+                            const SizedBox(width: 16),
+
+                            // Enhanced Author Details
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    testimonial['author']!,
+                                    style: AppTextStyles.cardTitleOnTransparent.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    testimonial['position']!,
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: AppColors.white.withOpacity(0.7),
+                                      fontSize: 14,
+                                    ),
+                                    textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Animated Rating Stars
+                            Row(
+                              children: List.generate(
+                                5,
+                                (index) => TweenAnimationBuilder<double>(
+                                  duration: Duration(milliseconds: 600 + (index * 100)),
+                                  tween: Tween(begin: 0.0, end: 1.0),
+                                  builder: (context, starValue, child) {
+                                    return Transform.scale(
+                                      scale: starValue,
+                                      child: Icon(
+                                        Icons.star_rounded,
+                                        color: AppColors.accent,
+                                        size: 18,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrustIndicators(
+    BuildContext context,
+    LanguageProvider languageProvider,
+    bool isArabic,
+    double screenWidth,
+  ) {
+    return Container(
+      padding: EdgeInsets.all(
+        ResponsiveHelper.isMobile(screenWidth) ? 32 : 48,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.white.withOpacity(0.06),
+            AppColors.white.withOpacity(0.02),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppColors.white.withOpacity(0.1),
+          width: 1.5,
+        ),
+      ),
+      child: ResponsiveHelper.isMobile(screenWidth)
+          ? Column(
+              children: [
+                _buildTrustItem(
+                  '500+',
+                  AppLocalizations.translate(
+                    'satisfied_clients',
+                    languageProvider.currentLocale.languageCode,
+                  ),
+                  Icons.people_rounded,
+                  isArabic,
+                  screenWidth,
+                ),
+                const SizedBox(height: 32),
+                _buildTrustItem(
+                  '15+',
+                  AppLocalizations.translate(
+                    'years_experience',
+                    languageProvider.currentLocale.languageCode,
+                  ),
+                  Icons.timeline_rounded,
+                  isArabic,
+                  screenWidth,
+                ),
+                const SizedBox(height: 32),
+                _buildTrustItem(
+                  '98%',
+                  AppLocalizations.translate(
+                    'success_rate',
+                    languageProvider.currentLocale.languageCode,
+                  ),
+                  Icons.trending_up_rounded,
+                  isArabic,
+                  screenWidth,
+                ),
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: _buildTrustItem(
+                    '500+',
+                    AppLocalizations.translate(
+                      'satisfied_clients',
+                      languageProvider.currentLocale.languageCode,
+                    ),
+                    Icons.people_rounded,
+                    isArabic,
+                    screenWidth,
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 80,
+                  color: AppColors.white.withOpacity(0.1),
+                ),
+                Expanded(
+                  child: _buildTrustItem(
+                    '15+',
+                    AppLocalizations.translate(
+                      'years_experience',
+                      languageProvider.currentLocale.languageCode,
+                    ),
+                    Icons.timeline_rounded,
+                    isArabic,
+                    screenWidth,
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 80,
+                  color: AppColors.white.withOpacity(0.1),
+                ),
+                Expanded(
+                  child: _buildTrustItem(
+                    '98%',
+                    AppLocalizations.translate(
+                      'success_rate',
+                      languageProvider.currentLocale.languageCode,
+                    ),
+                    Icons.trending_up_rounded,
+                    isArabic,
+                    screenWidth,
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildTrustItem(
+    String number,
+    String label,
+    IconData icon,
+    bool isArabic,
+    double screenWidth,
+  ) {
+    return Column(
+      children: [
+        // Enhanced Icon
+        Container(
+          width: 64,
+          height: 64,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.accent, AppColors.primary],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.accent.withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Icon(
+            icon,
+            color: AppColors.white,
+            size: 32,
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        // Enhanced Number
+        ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [AppColors.white, AppColors.accent.withOpacity(0.8)],
+          ).createShader(bounds),
+          child: Text(
+            number,
+            style: AppTextStyles.displaySmall.copyWith(
+              color: AppColors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: ResponsiveHelper.isMobile(screenWidth) ? 32 : 40,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 8),
+
+        // Enhanced Label
+        Text(
+          label,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.white.withOpacity(0.8),
+            fontWeight: FontWeight.w600,
+            fontSize: ResponsiveHelper.isMobile(screenWidth) ? 14 : 16,
+          ),
+          textAlign: TextAlign.center,
+          textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+        ),
+      ],
+    );
+  }
+
+  List<Map<String, String>> _getTestimonials(LanguageProvider languageProvider) {
+    final isArabic = languageProvider.currentLocale.languageCode == 'ar';
+
     if (isArabic) {
       return [
         {
-          'quote': 'شركة التخيم القابضة شريك موثوق وموثوق به. خدماتهم المهنية وخبرتهم في السوق السعودي لا مثيل لها.',
-          'name': 'أحمد المحمد',
-          'position': 'الرئيس التنفيذي',
-          'company': 'شركة النور للتطوير',
-          'rating': 5,
+          'text': 'شركة التخيم القابضة شريك موثوق في رحلة نجاحنا. خدماتهم المتميزة وفريقهم المحترف ساعدونا في تحقيق أهدافنا بكفاءة عالية.',
+          'author': 'أحمد محمد',
+          'position': 'الرئيس التنفيذي، شركة النور للتجارة',
         },
         {
-          'quote': 'التعامل مع التخيم القابضة كان تجربة رائعة. فريقهم محترف ومتفهم لاحتياجات السوق المحلي.',
-          'name': 'فاطمة العلي',
-          'position': 'مديرة العمليات',
-          'company': 'مجموعة الخليج التجارية',
-          'rating': 5,
+          'text': 'التعامل مع التخيم القابضة كان تجربة رائعة. الاحترافية والجودة في الخدمة جعلتنا نثق بهم كشريك استراتيجي طويل الأمد.',
+          'author': 'فاطمة العلي',
+          'position': 'مديرة العمليات، مجموعة الخليج',
         },
         {
-          'quote': 'نوصي بشدة بخدمات شركة التخيم القابضة. لقد ساعدونا في تحقيق أهدافنا الاستراتيجية بكفاءة عالية.',
-          'name': 'محمد الراشد',
-          'position': 'مؤسس',
-          'company': 'شركة الابتكار التقني',
-          'rating': 5,
+          'text': 'نقدر الشفافية والالتزام الذي تتمتع به شركة التخيم القابضة. لقد ساهموا بشكل كبير في نمو أعمالنا وتطويرها.',
+          'author': 'خالد السعد',
+          'position': 'مؤسس شركة التقنية المتقدمة',
         },
       ];
     } else {
       return [
         {
-          'quote': 'Altukhaim Holding has been an exceptional partner. Their professional services and deep understanding of the Saudi market are unmatched.',
-          'name': 'Ahmed Al-Mohammed',
-          'position': 'CEO',
-          'company': 'Al-Noor Development Company',
-          'rating': 5,
+          'text': 'Altukhaim Holding has been a trusted partner in our success journey. Their exceptional services and professional team helped us achieve our goals with high efficiency.',
+          'author': 'Ahmed Mohammed',
+          'position': 'CEO, Al-Noor Trading Company',
         },
         {
-          'quote': 'Working with Altukhaim Holding has been a remarkable experience. Their team is professional and truly understands local market needs.',
-          'name': 'Fatima Al-Ali',
-          'position': 'Operations Manager',
-          'company': 'Gulf Commercial Group',
-          'rating': 5,
+          'text': 'Working with Altukhaim Holding has been an amazing experience. The professionalism and quality of service made us trust them as a long-term strategic partner.',
+          'author': 'Fatima Al-Ali',
+          'position': 'Operations Manager, Gulf Group',
         },
         {
-          'quote': 'We highly recommend Altukhaim Holding\'s services. They have helped us achieve our strategic goals with exceptional efficiency.',
-          'name': 'Mohammed Al-Rashid',
-          'position': 'Founder',
-          'company': 'Innovation Tech Company',
-          'rating': 5,
+          'text': 'We appreciate the transparency and commitment that Altukhaim Holding possesses. They have significantly contributed to the growth and development of our business.',
+          'author': 'Khalid Al-Saad',
+          'position': 'Founder, Advanced Technology Company',
         },
       ];
     }

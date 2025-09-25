@@ -20,7 +20,7 @@ class SubsidiariesSection extends StatelessWidget {
         return Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(
-            vertical: ResponsiveHelper.isMobile(screenWidth) ? 60 : 100,
+            vertical: ResponsiveHelper.isMobile(screenWidth) ? 80 : 120,
             horizontal: ResponsiveHelper.getHorizontalPadding(screenWidth),
           ),
           decoration: const BoxDecoration(
@@ -42,7 +42,7 @@ class SubsidiariesSection extends StatelessWidget {
                     ),
                   ),
                   SizedBox(
-                    height: ResponsiveHelper.isMobile(screenWidth) ? 40 : 60,
+                    height: ResponsiveHelper.isMobile(screenWidth) ? 50 : 80,
                   ),
 
                   // Subsidiaries Grid
@@ -72,52 +72,99 @@ class SubsidiariesSection extends StatelessWidget {
   ) {
     return Column(
       children: [
-        // Badge
+        // Modern Badge with Gradient
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20),
+            gradient: LinearGradient(
+              colors: [
+                AppColors.primary.withOpacity(0.15),
+                AppColors.accent.withOpacity(0.15),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(25),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.2),
-              width: 1,
+              color: AppColors.primary.withOpacity(0.3),
+              width: 1.5,
             ),
           ),
-          child: Text(
-            AppLocalizations.translate(
-              'subsidiaries',
-              languageProvider.currentLocale.languageCode,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 18,
+                height: 18,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Image.asset(
+                    'assets/images/nawaf_logo.png',
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                AppLocalizations.translate(
+                  'subsidiaries',
+                  languageProvider.currentLocale.languageCode,
+                ),
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 32),
+
+        // Enhanced Main Title
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [AppColors.white, AppColors.white.withOpacity(0.8)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w600,
+          ),
+          child: ShaderMask(
+            shaderCallback: (bounds) => LinearGradient(
+              colors: [AppColors.white, AppColors.primary.withOpacity(0.9)],
+            ).createShader(bounds),
+            child: Text(
+              AppLocalizations.translate(
+                'subsidiaries_title',
+                languageProvider.currentLocale.languageCode,
+              ),
+              style: AppTextStyles.responsiveHeading(context).copyWith(
+                color: AppColors.white,
+                fontWeight: FontWeight.w800,
+                height: 1.2,
+              ),
+              textAlign: TextAlign.center,
+              textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
             ),
           ),
         ),
 
         const SizedBox(height: 24),
 
-        // Main Title
-        Text(
-          AppLocalizations.translate(
-            'subsidiaries_title',
-            languageProvider.currentLocale.languageCode,
-          ),
-          style: AppTextStyles.responsiveHeading(
-            context,
-          ).copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w700),
-          textAlign: TextAlign.center,
-          textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
-        ),
-
-        const SizedBox(height: 20),
-
-        // Subtitle
+        // Enhanced Subtitle with better styling
         Container(
           constraints: BoxConstraints(
-            maxWidth: ResponsiveHelper.isMobile(screenWidth)
-                ? double.infinity
-                : 600,
+            maxWidth: ResponsiveHelper.isMobile(screenWidth) ? double.infinity : 700,
           ),
           child: Text(
             AppLocalizations.translate(
@@ -125,8 +172,9 @@ class SubsidiariesSection extends StatelessWidget {
               languageProvider.currentLocale.languageCode,
             ),
             style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.6,
+              color: AppColors.white.withOpacity(0.85),
+              height: 1.7,
+              fontSize: ResponsiveHelper.isMobile(screenWidth) ? 16 : 18,
             ),
             textAlign: TextAlign.center,
             textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
@@ -150,15 +198,15 @@ class SubsidiariesSection extends StatelessWidget {
 
         if (ResponsiveHelper.isDesktop(screenWidth)) {
           crossAxisCount = 2;
-          childAspectRatio = 1.1;
-          spacing = 40;
+          childAspectRatio = 1.15;
+          spacing = 32;
         } else if (ResponsiveHelper.isTablet(screenWidth)) {
           crossAxisCount = 2;
-          childAspectRatio = 1.0;
-          spacing = 30;
+          childAspectRatio = 1.1;
+          spacing = 24;
         } else {
           crossAxisCount = 1;
-          childAspectRatio = 1.2;
+          childAspectRatio = 1.3;
           spacing = 20;
         }
 
@@ -170,44 +218,44 @@ class SubsidiariesSection extends StatelessWidget {
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
           children: [
-            _buildSubsidiaryCard(
+            _buildModernSubsidiaryCard(
               context,
               languageProvider,
               isArabic,
               'tokheim_investments',
               'tokheim_desc',
               Icons.trending_up_rounded,
-              AppColors.primary,
+              [AppColors.primary, AppColors.primary.withOpacity(0.6)],
               screenWidth,
             ),
-            _buildSubsidiaryCard(
+            _buildModernSubsidiaryCard(
               context,
               languageProvider,
               isArabic,
               'tokheim_real_estate',
               'tokheim_real_desc',
               Icons.business_rounded,
-              AppColors.accent,
+              [AppColors.accent, AppColors.accent.withOpacity(0.6)],
               screenWidth,
             ),
-            _buildSubsidiaryCard(
+            _buildModernSubsidiaryCard(
               context,
               languageProvider,
               isArabic,
               'tokheim_tech',
               'tokheim_tech_desc',
               Icons.computer_rounded,
-              AppColors.primary,
+              [AppColors.primary, AppColors.primary.withOpacity(0.6)],
               screenWidth,
             ),
-            _buildSubsidiaryCard(
+            _buildModernSubsidiaryCard(
               context,
               languageProvider,
               isArabic,
               'tokheim_trading',
               'tokheim_trading_desc',
               Icons.public_rounded,
-              AppColors.accent,
+              [AppColors.accent, AppColors.accent.withOpacity(0.6)],
               screenWidth,
             ),
           ],
@@ -216,141 +264,171 @@ class SubsidiariesSection extends StatelessWidget {
     );
   }
 
-  Widget _buildSubsidiaryCard(
+  Widget _buildModernSubsidiaryCard(
     BuildContext context,
     LanguageProvider languageProvider,
     bool isArabic,
     String titleKey,
     String descKey,
     IconData icon,
-    Color iconColor,
+    List<Color> gradientColors,
     double screenWidth,
   ) {
     return AnimatedSection(
       duration: const Duration(milliseconds: 600),
-      child: Container(
-        padding: EdgeInsets.all(
-          ResponsiveHelper.isMobile(screenWidth) ? 24 : 32,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadowLight,
-              blurRadius: 30,
-              offset: const Offset(0, 10),
-            ),
-          ],
-          border: Border.all(
-            color: AppColors.surface.withOpacity(0.1),
-            width: 1,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: EdgeInsets.all(
+            ResponsiveHelper.isMobile(screenWidth) ? 28 : 36,
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Icon with gradient background
-            Container(
-              width: ResponsiveHelper.isMobile(screenWidth) ? 56 : 64,
-              height: ResponsiveHelper.isMobile(screenWidth) ? 56 : 64,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [iconColor, iconColor.withOpacity(0.7)],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: iconColor.withOpacity(0.3),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.white.withOpacity(0.08),
+                AppColors.white.withOpacity(0.03),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AppColors.white.withOpacity(0.15),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: gradientColors[0].withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Enhanced Icon with modern design
+              Container(
+                width: ResponsiveHelper.isMobile(screenWidth) ? 64 : 72,
+                height: ResponsiveHelper.isMobile(screenWidth) ? 64 : 72,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: gradientColors,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                ],
-              ),
-              child: Icon(
-                icon,
-                size: ResponsiveHelper.isMobile(screenWidth) ? 28 : 32,
-                color: AppColors.white,
-              ),
-            ),
-
-            SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 20 : 24),
-
-            // Title
-            Text(
-              AppLocalizations.translate(
-                titleKey,
-                languageProvider.currentLocale.languageCode,
-              ),
-              style: AppTextStyles.headingMedium.copyWith(
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
-              textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
-            ),
-
-            SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 12 : 16),
-
-            // Description
-            Expanded(
-              child: Text(
-                AppLocalizations.translate(
-                  descKey,
-                  languageProvider.currentLocale.languageCode,
-                ),
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
-                  height: 1.6,
-                ),
-                textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
-              ),
-            ),
-
-            // Learn More Button with hover effect
-            SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 16 : 20),
-            InkWell(
-              onTap: () {
-                // Handle subsidiary details navigation
-                _showSubsidiaryDetails(
-                  context,
-                  titleKey,
-                  descKey,
-                  languageProvider,
-                );
-              },
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      AppLocalizations.translate(
-                        'learn_more',
-                        languageProvider.currentLocale.languageCode,
-                      ),
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: iconColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      isArabic
-                          ? Icons.arrow_back_rounded
-                          : Icons.arrow_forward_rounded,
-                      size: 18,
-                      color: iconColor,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: gradientColors[0].withOpacity(0.4),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
+                child: Icon(
+                  icon,
+                  size: ResponsiveHelper.isMobile(screenWidth) ? 32 : 36,
+                  color: AppColors.white,
+                ),
               ),
-            ),
-          ],
+
+              SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 24 : 28),
+
+              // Enhanced Title
+              Text(
+                AppLocalizations.translate(
+                  titleKey,
+                  languageProvider.currentLocale.languageCode,
+                ),
+                style: AppTextStyles.headingMedium.copyWith(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: ResponsiveHelper.isMobile(screenWidth) ? 20 : 22,
+                  height: 1.3,
+                ),
+                textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+              ),
+
+              SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 16 : 20),
+
+              // Enhanced Description
+              Expanded(
+                child: Text(
+                  AppLocalizations.translate(
+                    descKey,
+                    languageProvider.currentLocale.languageCode,
+                  ),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.white.withOpacity(0.8),
+                    height: 1.7,
+                    fontSize: ResponsiveHelper.isMobile(screenWidth) ? 14 : 15,
+                  ),
+                  textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+                ),
+              ),
+
+              // Modern Learn More Button
+              SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 20 : 24),
+              InkWell(
+                onTap: () {
+                  _showSubsidiaryDetails(
+                    context,
+                    titleKey,
+                    descKey,
+                    languageProvider,
+                  );
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        gradientColors[0].withOpacity(0.2),
+                        gradientColors[1].withOpacity(0.1),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: gradientColors[0].withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        AppLocalizations.translate(
+                          'learn_more',
+                          languageProvider.currentLocale.languageCode,
+                        ),
+                        style: AppTextStyles.bodyMedium.copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        isArabic
+                            ? Icons.arrow_back_rounded
+                            : Icons.arrow_forward_rounded,
+                        size: 18,
+                        color: AppColors.white,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+
 
   void _showSubsidiaryDetails(
     BuildContext context,
