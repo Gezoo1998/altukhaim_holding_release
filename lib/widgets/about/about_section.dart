@@ -6,9 +6,13 @@ import '../../utils/responsive_helper.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
 import '../common/animated_section.dart';
+import '../common/animated_background.dart';
+import '../modern_card.dart';
+import '../animated_text.dart';
+import '../animations/scroll_animations.dart' as scroll_anim;
 
 class AboutSection extends StatelessWidget {
-  const AboutSection({Key? key}) : super(key: key);
+  const AboutSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,50 +20,48 @@ class AboutSection extends StatelessWidget {
     final isArabic = languageProvider.currentLocale.languageCode == 'ar';
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        vertical: ResponsiveHelper.isMobile(screenWidth) ? 80 : 120,
-        horizontal: ResponsiveHelper.getHorizontalPadding(screenWidth),
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppColors.surface,
-            AppColors.surface.withOpacity(0.8),
-          ],
+    return AnimatedBackground(
+      enableParticles: true,
+      enableGeometricShapes: true,
+      opacity: 0.8,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          vertical: ResponsiveHelper.isMobile(screenWidth) ? 80 : 120,
+          horizontal: ResponsiveHelper.getHorizontalPadding(screenWidth),
         ),
-      ),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1400),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Section Header
-              AnimatedSection(
-                duration: const Duration(milliseconds: 800),
-                child: _buildSectionHeader(context, languageProvider, screenWidth),
-              ),
-              
-              SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 60 : 80),
-              
-              // Main Content
-              if (ResponsiveHelper.isMobile(screenWidth))
-                _buildMobileLayout(languageProvider, isArabic, screenWidth)
-              else
-                _buildDesktopLayout(languageProvider, isArabic, screenWidth),
-              
-              SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 60 : 80),
-              
-              // Company Stats
-              AnimatedSection(
-                duration: const Duration(milliseconds: 1400),
-                child: _buildModernStats(languageProvider, isArabic, screenWidth),
-              ),
-            ],
+        decoration: const BoxDecoration(
+          color: Colors.transparent,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1400),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Section Header
+                AnimatedSection(
+                  duration: const Duration(milliseconds: 800),
+                  child: _buildSectionHeader(context, languageProvider, screenWidth),
+                ),
+                
+                SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 60 : 80),
+                
+                // Main Content
+                if (ResponsiveHelper.isMobile(screenWidth))
+                  _buildMobileLayout(languageProvider, isArabic, screenWidth)
+                else
+                  _buildDesktopLayout(languageProvider, isArabic, screenWidth),
+                
+                SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 60 : 80),
+                
+                // Company Stats
+                AnimatedSection(
+                  duration: const Duration(milliseconds: 1400),
+                  child: _buildModernStats(languageProvider, isArabic, screenWidth),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -71,19 +73,19 @@ class AboutSection extends StatelessWidget {
       children: [
         // Badge
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.white.withOpacity(0.15),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.2),
+              color: AppColors.white.withOpacity(0.3),
               width: 1,
             ),
           ),
           child: Text(
             'About Us',
             style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.primary,
+              color: AppColors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -92,10 +94,12 @@ class AboutSection extends StatelessWidget {
         const SizedBox(height: 24),
         
         // Main Title
-        Text(
-          AppLocalizations.translate('about_title', languageProvider.currentLocale.languageCode),
+        AnimatedText(
+          text: AppLocalizations.translate('about_title', languageProvider.currentLocale.languageCode),
+          animationType: AnimationType.fadeInUp,
+          duration: const Duration(milliseconds: 1000),
           style: AppTextStyles.responsiveHeading(context).copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.white,
             fontWeight: FontWeight.w700,
           ),
           textAlign: TextAlign.center,
@@ -104,18 +108,15 @@ class AboutSection extends StatelessWidget {
         const SizedBox(height: 20),
         
         // Subtitle
-        Container(
-          constraints: BoxConstraints(
-            maxWidth: ResponsiveHelper.isMobile(screenWidth) ? double.infinity : 600,
+        AnimatedText(
+          text: AppLocalizations.translate('about_subtitle', languageProvider.currentLocale.languageCode),
+          animationType: AnimationType.fadeIn,
+          duration: const Duration(milliseconds: 1200),
+          style: AppTextStyles.bodyLarge.copyWith(
+            color: AppColors.white.withOpacity(0.9),
+            height: 1.6,
           ),
-          child: Text(
-            AppLocalizations.translate('about_subtitle', languageProvider.currentLocale.languageCode),
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.6,
-            ),
-            textAlign: TextAlign.center,
-          ),
+          textAlign: TextAlign.center,
         ),
       ],
     );
@@ -165,19 +166,7 @@ class AboutSection extends StatelessWidget {
   }
 
   Widget _buildCompanyOverview(LanguageProvider languageProvider, bool isArabic, double screenWidth) {
-    return Container(
-      padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+    return ModernCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -198,10 +187,12 @@ class AboutSection extends StatelessWidget {
               ),
               const SizedBox(width: 20),
               Expanded(
-                child: Text(
-                  AppLocalizations.translate('about_overview_title', languageProvider.currentLocale.languageCode),
+                child: AnimatedText(
+                  text: AppLocalizations.translate('about_overview_title', languageProvider.currentLocale.languageCode),
+                  animationType: AnimationType.fadeInUp,
+                  duration: const Duration(milliseconds: 800),
                   style: AppTextStyles.headingMedium.copyWith(
-                    color: AppColors.textPrimary,
+                    color: AppColors.white,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -212,11 +203,13 @@ class AboutSection extends StatelessWidget {
           const SizedBox(height: 24),
           
           // Content
-          Text(
-            AppLocalizations.translate('about_overview_content', languageProvider.currentLocale.languageCode),
+          AnimatedText(
+            text: AppLocalizations.translate('about_overview_content', languageProvider.currentLocale.languageCode),
+            animationType: AnimationType.fadeIn,
+            duration: const Duration(milliseconds: 1000),
             style: AppTextStyles.bodyLarge.copyWith(
               height: 1.7,
-              color: AppColors.textSecondary,
+              color: AppColors.white.withOpacity(0.9),
             ),
           ),
           
@@ -243,7 +236,7 @@ class AboutSection extends StatelessWidget {
         Text(
           'Key Strengths',
           style: AppTextStyles.titleMedium.copyWith(
-            color: AppColors.textPrimary,
+            color: AppColors.white,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -269,7 +262,7 @@ class AboutSection extends StatelessWidget {
                 child: Text(
                   feature['text'] as String,
                   style: AppTextStyles.bodyMedium.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.white.withOpacity(0.9),
                   ),
                 ),
               ),
@@ -316,68 +309,53 @@ class AboutSection extends StatelessWidget {
   }
 
   Widget _buildModernMVVCard(IconData icon, String title, String content, Color accentColor, bool isArabic) {
-    return HoverAnimationWrapper(
-      hoverScale: 1.02,
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: accentColor.withOpacity(0.1),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.shadowLight,
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Icon and Title
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: accentColor,
-                    size: 24,
-                  ),
+    return ModernCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Icon and Title
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: accentColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: AppTextStyles.titleLarge.copyWith(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                child: Icon(
+                  icon,
+                  color: accentColor,
+                  size: 24,
                 ),
-              ],
-            ),
-            
-            const SizedBox(height: 20),
-            
-            // Content
-            Text(
-              content,
-              style: AppTextStyles.bodyMedium.copyWith(
-                height: 1.6,
-                color: AppColors.textSecondary,
               ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: AnimatedText(
+                  text: title,
+                  animationType: AnimationType.fadeIn,
+                  duration: const Duration(milliseconds: 800),
+                  style: AppTextStyles.titleLarge.copyWith(
+                    color: AppColors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+            
+          const SizedBox(height: 20),
+            
+          // Content
+          AnimatedText(
+            text: content,
+            style: AppTextStyles.bodyMedium.copyWith(
+              height: 1.6,
+              color: AppColors.white.withOpacity(0.9),
             ),
-          ],
-        ),
+            animationType: AnimationType.fadeIn,
+            duration: const Duration(milliseconds: 1000),
+          ),
+        ],
       ),
     );
   }
@@ -487,30 +465,43 @@ class AboutSection extends StatelessWidget {
   }
 
   Widget _buildModernStatItem(String number, String label, IconData icon) {
-    return Column(
-      children: [
-        Icon(
-          icon,
-          color: AppColors.white.withOpacity(0.8),
-          size: 32,
-        ),
-        const SizedBox(height: 12),
-        Text(
-          number,
-          style: AppTextStyles.displaySmall.copyWith(
-            color: AppColors.white,
-            fontWeight: FontWeight.w800,
+    // Extract numeric value for count-up animation
+    final numericValue = int.tryParse(number.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    final suffix = number.replaceAll(RegExp(r'[0-9]'), '');
+    
+    return scroll_anim.ScrollFadeIn(
+      slideFromBottom: true,
+      duration: const Duration(milliseconds: 800),
+      child: Column(
+        children: [
+          scroll_anim.PulseAnimation(
+            duration: const Duration(milliseconds: 2000),
+            child: Icon(
+              icon,
+              color: AppColors.white.withOpacity(0.8),
+              size: 32,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.white.withOpacity(0.9),
+          const SizedBox(height: 12),
+          scroll_anim.CountUpAnimation(
+            end: numericValue,
+            suffix: suffix,
+            duration: const Duration(milliseconds: 2500),
+            style: AppTextStyles.displaySmall.copyWith(
+              color: AppColors.white,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.white.withOpacity(0.9),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 

@@ -79,64 +79,68 @@ class _HomeScreenState extends State<HomeScreen> {
         return Directionality(
           textDirection: languageProvider.textDirection,
           child: Scaffold(
-            backgroundColor: AppColors.white,
-            body: Column(
-              children: [
-                // Header
-                AppHeader(onNavigate: _scrollToSection),
-                
-                // Scrollable Content
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
-                      children: [
-                        // Hero Section
-                        Container(
-                          key: _homeKey,
-                          child: HeroSection(
-                            onGetInTouch: _handleGetInTouch,
-                            onLearnMore: _handleLearnMore,
+            body: Container(
+              decoration: const BoxDecoration(
+                gradient: AppColors.modernHeroGradient,
+              ),
+              child: Column(
+                children: [
+                  // Header
+                  AppHeader(onNavigate: _scrollToSection),
+                  
+                  // Scrollable Content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [
+                          // Hero Section
+                          Container(
+                            key: _homeKey,
+                            child: HeroSection(
+                              onGetInTouch: _handleGetInTouch,
+                              onLearnMore: _handleLearnMore,
+                            ),
                           ),
-                        ),
-                        
-                        // About Section
-                        Container(
-                          key: _aboutKey,
-                          child: const AboutSection(),
-                        ),
-                        
-                        // Subsidiaries Section
-                        Container(
-                          key: _subsidiariesKey,
-                          child: const SubsidiariesSection(),
-                        ),
-                        
-                        // News Section
-                        Container(
-                          key: _newsKey,
-                          child: const NewsSection(),
-                        ),
-                        
-                        // Testimonials Section
-                        const TestimonialsSection(),
-                        
-                        // CTA Section
-                        const CTASection(),
-                        
-                        // Contact Section
-            Container(
-              key: _contactKey,
-              child: const ContactSection(),
-            ),
-            
-            // Footer Section
-            const FooterSection(),
-                      ],
+                          
+                          // About Section
+                          Container(
+                            key: _aboutKey,
+                            child: const AboutSection(),
+                          ),
+                          
+                          // Subsidiaries Section
+                          Container(
+                            key: _subsidiariesKey,
+                            child: const SubsidiariesSection(),
+                          ),
+                          
+                          // News Section
+                          Container(
+                            key: _newsKey,
+                            child: const NewsSection(),
+                          ),
+                          
+                          // Testimonials Section
+                          const TestimonialsSection(),
+                          
+                          // CTA Section
+                          const CTASection(),
+                          
+                          // Contact Section
+                          Container(
+                            key: _contactKey,
+                            child: const ContactSection(),
+                          ),
+                          
+                          // Footer Section
+                          const FooterSection(),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );

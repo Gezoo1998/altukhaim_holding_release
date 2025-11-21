@@ -1,9 +1,11 @@
+import 'package:altukhaim_holding/constants/app_colors.dart';
+import 'package:altukhaim_holding/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/language_provider.dart';
-import '../../constants/app_colors.dart';
-import '../../constants/app_text_styles.dart';
 import '../../utils/app_localizations.dart';
+import '../../utils/responsive_helper.dart';
+import '../animated_text.dart';
 
 class CTASection extends StatelessWidget {
   const CTASection({super.key});
@@ -13,7 +15,8 @@ class CTASection extends StatelessWidget {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
         final isArabic = languageProvider.currentLocale.languageCode == 'ar';
-        
+        final screenWidth = MediaQuery.of(context).size.width;
+
         return Container(
           width: double.infinity,
           decoration: BoxDecoration(
@@ -21,36 +24,32 @@ class CTASection extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                AppColors.accent,
-                AppColors.accentDark,
-                AppColors.primary,
+                AppColors.accent.withOpacity(0.3),
+                AppColors.accentDark.withOpacity(0.2),
+                AppColors.primary.withOpacity(0.3),
               ],
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 20),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final isMobile = constraints.maxWidth < 768;
-                final isTablet = constraints.maxWidth < 1024;
-                
-                return Center(
-                  child: Container(
-                    constraints: const BoxConstraints(maxWidth: 1200),
-                    child: Column(
-                      children: [
-                        // Section Header
-                        _buildSectionHeader(context, isArabic, isMobile, isTablet),
-                        
-                        const SizedBox(height: 50),
-                        
-                        // CTA Buttons
-                        _buildCTAButtons(context, isArabic, isMobile, isTablet),
-                      ],
-                    ),
-                  ),
-                );
-              },
+            padding: EdgeInsets.symmetric(
+              vertical: ResponsiveHelper.getVerticalSpacing(screenWidth),
+              horizontal: ResponsiveHelper.getHorizontalPadding(screenWidth),
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: ResponsiveHelper.getMaxWidth(screenWidth)),
+                child: Column(
+                  children: [
+                    // Section Header
+                    _buildSectionHeader(context, isArabic, screenWidth),
+
+                    SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 40 : 50),
+
+                    // CTA Buttons
+                    _buildCTAButtons(context, isArabic, screenWidth),
+                  ],
+                ),
+              ),
             ),
           ),
         );
@@ -58,40 +57,53 @@ class CTASection extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, bool isArabic, bool isMobile, bool isTablet) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    bool isArabic,
+    double screenWidth,
+  ) {
     return Column(
       children: [
-        Text(
-          AppLocalizations.translate('cta_title', isArabic ? 'ar' : 'en'),
+        AnimatedText(
+          text: AppLocalizations.translate('cta_title', isArabic ? 'ar' : 'en'),
           style: AppTextStyles.headingLarge.copyWith(
-            fontSize: isMobile ? 32 : (isTablet ? 40 : 48),
+            fontSize: ResponsiveHelper.getHeadingSize(screenWidth, baseSize: 48),
             color: AppColors.white,
             fontWeight: FontWeight.bold,
           ),
           textAlign: TextAlign.center,
+          animationType: AnimationType.fadeInUp,
         ),
-        
+
         const SizedBox(height: 20),
-        
+
         Container(
           constraints: BoxConstraints(
-            maxWidth: isMobile ? double.infinity : 600,
+            maxWidth: ResponsiveHelper.isMobile(screenWidth) ? screenWidth * 0.9 : 600,
           ),
-          child: Text(
-            AppLocalizations.translate('cta_subtitle', isArabic ? 'ar' : 'en'),
+          child: AnimatedText(
+            text: AppLocalizations.translate(
+              'cta_subtitle',
+              isArabic ? 'ar' : 'en',
+            ),
             style: AppTextStyles.bodyLarge.copyWith(
-              fontSize: isMobile ? 16 : (isTablet ? 18 : 20),
+              fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 20),
               color: AppColors.white.withValues(alpha: 0.9),
               height: 1.6,
             ),
             textAlign: TextAlign.center,
+            animationType: AnimationType.fadeIn,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildCTAButtons(BuildContext context, bool isArabic, bool isMobile, bool isTablet) {
+  Widget _buildCTAButtons(
+    BuildContext context,
+    bool isArabic,
+    double screenWidth,
+  ) {
     return Wrap(
       spacing: 20,
       runSpacing: 20,
@@ -100,28 +112,32 @@ class CTASection extends StatelessWidget {
         // Primary CTA Button
         _buildCTAButton(
           context: context,
-          text: AppLocalizations.translate('work_with_us', isArabic ? 'ar' : 'en'),
+          text: AppLocalizations.translate(
+            'work_with_us',
+            isArabic ? 'ar' : 'en',
+          ),
           isPrimary: true,
           onPressed: () {
             // Navigate to contact section
             _scrollToSection(context, 'contact');
           },
-          isMobile: isMobile,
-          isTablet: isTablet,
+          screenWidth: screenWidth,
           isArabic: isArabic,
         ),
-        
+
         // Secondary CTA Button
         _buildCTAButton(
           context: context,
-          text: AppLocalizations.translate('explore_opportunities', isArabic ? 'ar' : 'en'),
+          text: AppLocalizations.translate(
+            'explore_opportunities',
+            isArabic ? 'ar' : 'en',
+          ),
           isPrimary: false,
           onPressed: () {
             // Navigate to services section
             _scrollToSection(context, 'services');
           },
-          isMobile: isMobile,
-          isTablet: isTablet,
+          screenWidth: screenWidth,
           isArabic: isArabic,
         ),
       ],
@@ -133,56 +149,45 @@ class CTASection extends StatelessWidget {
     required String text,
     required bool isPrimary,
     required VoidCallback onPressed,
-    required bool isMobile,
-    required bool isTablet,
+    required double screenWidth,
     required bool isArabic,
   }) {
     return Container(
-      width: isMobile ? double.infinity : (isTablet ? 250 : 280),
-      height: 60,
-      decoration: BoxDecoration(
-        color: isPrimary ? AppColors.accent : Colors.transparent,
-        border: isPrimary ? null : Border.all(
-          color: AppColors.white,
-          width: 2,
-        ),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: isPrimary ? [
-          BoxShadow(
-            color: AppColors.accent.withValues(alpha: 0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ] : null,
+      constraints: BoxConstraints(
+        minWidth: ResponsiveHelper.isMobile(screenWidth) ? 200 : 220,
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(30),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 18),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  text,
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    fontSize: isMobile ? 16 : 18,
-                    fontWeight: FontWeight.w600,
-                    color: isPrimary ? AppColors.darkGray : AppColors.white,
-                  ),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: isPrimary 
+              ? AppColors.white 
+              : Colors.transparent,
+          foregroundColor: isPrimary 
+              ? AppColors.primary 
+              : AppColors.white,
+          elevation: isPrimary ? 8 : 0,
+          shadowColor: isPrimary 
+              ? AppColors.white.withOpacity(0.3) 
+              : Colors.transparent,
+          side: isPrimary 
+              ? null 
+              : BorderSide(
+                  color: AppColors.white.withOpacity(0.5),
+                  width: 2,
                 ),
-                
-                const SizedBox(width: 10),
-                
-                Icon(
-                  Icons.arrow_forward,
-                  color: isPrimary ? AppColors.darkGray : AppColors.white,
-                  size: 20,
-                ),
-              ],
-            ),
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveHelper.isMobile(screenWidth) ? 32 : 40,
+            vertical: ResponsiveHelper.isMobile(screenWidth) ? 16 : 20,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        child: Text(
+          text,
+          style: AppTextStyles.buttonLarge.copyWith(
+            fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 16),
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

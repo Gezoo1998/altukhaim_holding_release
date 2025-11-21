@@ -1,11 +1,121 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../constants/app_colors.dart';
+import '../../constants/app_text_styles.dart';
 import '../../providers/language_provider.dart';
 import '../../utils/app_localizations.dart';
 import '../../utils/responsive_helper.dart';
-import '../../constants/app_colors.dart';
-import '../../constants/app_text_styles.dart';
 import '../common/animated_section.dart';
+import '../modern_button.dart';
+import '../modern_card.dart';
+import '../animated_text.dart';
+import '../animations/parallax_widget.dart';
+
+class GridPatternPainter extends CustomPainter {
+  final Color color;
+  
+  GridPatternPainter({required this.color});
+  
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1.0
+      ..style = PaintingStyle.stroke;
+    
+    const gridSize = 20.0;
+    
+    // Draw vertical lines
+    for (double x = 0; x <= size.width; x += gridSize) {
+      canvas.drawLine(
+        Offset(x, 0),
+        Offset(x, size.height),
+        paint,
+      );
+    }
+    
+    // Draw horizontal lines
+    for (double y = 0; y <= size.height; y += gridSize) {
+      canvas.drawLine(
+        Offset(0, y),
+        Offset(size.width, y),
+        paint,
+      );
+    }
+  }
+  
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class HoverAnimationWrapper extends StatefulWidget {
+  final Widget child;
+  final double hoverScale;
+  final double elevation;
+  
+  const HoverAnimationWrapper({
+    Key? key,
+    required this.child,
+    this.hoverScale = 1.05,
+    this.elevation = 8,
+  }) : super(key: key);
+  
+  @override
+  State<HoverAnimationWrapper> createState() => _HoverAnimationWrapperState();
+}
+
+class _HoverAnimationWrapperState extends State<HoverAnimationWrapper>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  bool _isHovered = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: widget.hoverScale,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+  }
+  
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() => _isHovered = true);
+        _controller.forward();
+      },
+      onExit: (_) {
+        setState(() => _isHovered = false);
+        _controller.reverse();
+      },
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _scaleAnimation.value,
+            child: widget.child,
+          );
+        },
+      ),
+    );
+  }
+}
 
 class HeroSection extends StatelessWidget {
   final VoidCallback? onGetInTouch;
@@ -29,14 +139,17 @@ class HeroSection extends StatelessWidget {
       width: double.infinity,
       height: screenHeight,
       decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
+        gradient: AppColors.modernHeroGradient,
       ),
       child: Stack(
         children: [
-          // Modern geometric background elements
-          _buildBackgroundElements(screenWidth, screenHeight),
+          // Enhanced background elements with parallax
+          _buildModernBackgroundElements(screenWidth, screenHeight),
           
-          // Main content
+          // Glassmorphism overlay
+          _buildGlassmorphismOverlay(),
+          
+          // Main content with enhanced animations
           Center(
             child: SingleChildScrollView(
               child: Padding(
@@ -51,163 +164,315 @@ class HeroSection extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                  // Badge/Tag
-                  AnimatedSection(
-                    duration: const Duration(milliseconds: 800),
-                    child: _buildHeroBadge(context, languageProvider),
-                  ),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Main headline
-                  AnimatedSection(
-                    duration: const Duration(milliseconds: 1000),
-                    child: Text(
-                      AppLocalizations.translate('hero_title', languageProvider.currentLocale.languageCode),
-                      textAlign: TextAlign.center,
-                      style: AppTextStyles.responsiveDisplay(context).copyWith(
-                        color: AppColors.white,
-                        fontWeight: FontWeight.w800,
+                      // Modern badge with glassmorphism
+                      AnimatedText(
+                        text: '',
+                        animationType: AnimationType.fadeInUp,
+                        delay: const Duration(milliseconds: 200),
+                        style: AppTextStyles.labelMedium,
                       ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Subheadline
-                  AnimatedSection(
-                    duration: const Duration(milliseconds: 1200),
-                    child: Container(
-                      constraints: BoxConstraints(
-                        maxWidth: ResponsiveHelper.isMobile(screenWidth) ? double.infinity : 700,
-                      ),
-                      child: Text(
-                        AppLocalizations.translate('hero_subtitle', languageProvider.currentLocale.languageCode),
-                        textAlign: TextAlign.center,
-                        style: AppTextStyles.heroSubtitle.copyWith(
-                          fontSize: ResponsiveHelper.isMobile(screenWidth) ? 18 : 22,
+                      _buildModernHeroBadge(context, languageProvider),
+                      
+                      const SizedBox(height: 40),
+                      
+                      // Main headline with typewriter effect
+                      AnimatedText(
+                        text: AppLocalizations.translate('hero_title', languageProvider.currentLocale.languageCode),
+                        animationType: AnimationType.fadeInUp,
+                        delay: const Duration(milliseconds: 400),
+                        style: AppTextStyles.responsiveDisplay(context).copyWith(
+                          color: AppColors.white,
+                          fontWeight: FontWeight.w900,
+                          height: 1.1,
+                          letterSpacing: -0.02,
                         ),
                       ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 48),
-                  
-                  // CTA Buttons
-                  AnimatedSection(
-                    duration: const Duration(milliseconds: 1400),
-                    child: _buildModernCTAButtons(context, languageProvider, screenWidth),
-                  ),
-                  
-                  const SizedBox(height: 80),
-                  
-                  // Trust indicators or stats
-                  AnimatedSection(
-                    duration: const Duration(milliseconds: 1600),
-                    child: _buildTrustIndicators(context, languageProvider, screenWidth),
-                  ),
-                  
-                  const SizedBox(height: 60),
-                  
-                  // Scroll indicator
-                  AnimatedSection(
-                    duration: const Duration(milliseconds: 1800),
-                    child: _buildScrollIndicator(context, languageProvider),
-                  ),
+                      
+                      const SizedBox(height: 32),
+                      
+                      // Enhanced subheadline
+                      Container(
+                        constraints: BoxConstraints(
+                          maxWidth: ResponsiveHelper.isMobile(screenWidth) ? double.infinity : 700,
+                        ),
+                        child: AnimatedText(
+                          text: AppLocalizations.translate('hero_subtitle', languageProvider.currentLocale.languageCode),
+                          animationType: AnimationType.fadeInUp,
+                          delay: const Duration(milliseconds: 600),
+                          style: AppTextStyles.heroSubtitle.copyWith(
+                            fontSize: ResponsiveHelper.isMobile(screenWidth) ? 18 : 24,
+                            color: AppColors.white.withOpacity(0.9),
+                            height: 1.6,
+                          ),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 56),
+                      
+                      // Modern CTA Buttons with enhanced animations
+                      _buildEnhancedCTAButtons(context, languageProvider, screenWidth),
+                      
+                      const SizedBox(height: 80),
+                      
+                      // Modern trust indicators with glassmorphism
+                      _buildModernTrustIndicators(context, languageProvider, screenWidth),
+                      
+                      const SizedBox(height: 60),
+                      
+                      // Animated scroll indicator
+                      _buildAnimatedScrollIndicator(context, languageProvider),
                     ],
                   ),
                 ),
               ),
             ),
           ),
+          
+          // Enhanced floating particles with parallax
+          FloatingParticles(
+            width: screenWidth,
+            height: screenHeight,
+            particleCount: 25,
+            particleColor: AppColors.white.withOpacity(0.6),
+            minSize: 2.0,
+            maxSize: 8.0,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBackgroundElements(double screenWidth, double screenHeight) {
+  Widget _buildModernBackgroundElements(double screenWidth, double screenHeight) {
     return Stack(
       children: [
-        // Gradient overlay for better text readability
+        // Enhanced gradient overlay
         Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.3),
+                Colors.black.withOpacity(0.4),
                 Colors.black.withOpacity(0.1),
-                Colors.black.withOpacity(0.2),
+                Colors.black.withOpacity(0.3),
               ],
+              stops: [0.0, 0.5, 1.0],
             ),
           ),
         ),
         
-        // Modern geometric shapes
+        // Modern geometric shapes with enhanced animations
         Positioned(
-          top: screenHeight * 0.1,
+          top: screenHeight * 0.15,
           right: screenWidth * 0.1,
           child: AnimatedSection(
             duration: const Duration(milliseconds: 2000),
             child: Container(
-              width: 120,
-              height: 120,
+              width: 150,
+              height: 150,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
+                borderRadius: BorderRadius.circular(40),
                 gradient: LinearGradient(
                   colors: [
-                    AppColors.accent.withOpacity(0.2),
-                    AppColors.accent.withOpacity(0.05),
+                    AppColors.accent.withOpacity(0.3),
+                    AppColors.accent.withOpacity(0.1),
+                    Colors.transparent,
                   ],
                 ),
                 border: Border.all(
-                  color: AppColors.accent.withOpacity(0.3),
-                  width: 1,
+                  color: AppColors.accent.withOpacity(0.4),
+                  width: 2,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.accent.withOpacity(0.2),
+                    blurRadius: 30,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
             ),
           ),
         ),
         
+        // Large floating circle
         Positioned(
-          bottom: screenHeight * 0.2,
-          left: screenWidth * 0.05,
+          bottom: screenHeight * 0.25,
+          left: -screenWidth * 0.1,
           child: AnimatedSection(
-            duration: const Duration(milliseconds: 2200),
+            duration: const Duration(milliseconds: 2500),
             child: Container(
-              width: 80,
-              height: 80,
+              width: 200,
+              height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppColors.secondary.withOpacity(0.3),
-                    AppColors.secondary.withOpacity(0.1),
+                    AppColors.secondary.withOpacity(0.4),
+                    AppColors.secondary.withOpacity(0.2),
+                    AppColors.secondary.withOpacity(0.05),
                     Colors.transparent,
                   ],
+                  stops: [0.0, 0.3, 0.7, 1.0],
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.secondary.withOpacity(0.3),
+                    blurRadius: 50,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
               ),
             ),
           ),
         ),
         
-        // Floating particles effect
-        ...List.generate(6, (index) => Positioned(
-          top: (screenHeight * 0.2) + (index * 80),
-          right: (screenWidth * 0.8) + (index * 20),
+        // Modern grid pattern
+        Positioned(
+          top: screenHeight * 0.3,
+          left: screenWidth * 0.7,
           child: AnimatedSection(
-            duration: Duration(milliseconds: 1500 + (index * 200)),
+            duration: const Duration(milliseconds: 1800),
             child: Container(
-              width: 4 + (index * 2),
-              height: 4 + (index * 2),
+              width: 100,
+              height: 100,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.white.withOpacity(0.3 - (index * 0.05)),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.gold.withOpacity(0.3),
+                  width: 1,
+                ),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.gold.withOpacity(0.1),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+              child: CustomPaint(
+                painter: GridPatternPainter(
+                  color: AppColors.gold.withOpacity(0.2),
+                ),
               ),
             ),
           ),
-        )),
+        ),
       ],
+    );
+  }
+
+  Widget _buildGlassmorphismOverlay() {
+    return Positioned.fill(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 0.5, sigmaY: 0.5),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withOpacity(0.05),
+                Colors.white.withOpacity(0.02),
+                Colors.transparent,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFloatingParticles(double screenWidth, double screenHeight) {
+    return Stack(
+      children: List.generate(12, (index) {
+        final random = (index * 37) % 100;
+        return Positioned(
+          top: (screenHeight * 0.1) + (random * 3),
+          left: (screenWidth * 0.1) + (random * 5),
+          child: AnimatedSection(
+            duration: Duration(milliseconds: 1500 + (index * 300)),
+            child: Container(
+              width: 3 + (index % 4),
+              height: 3 + (index % 4),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppColors.white.withOpacity(0.6),
+                    AppColors.white.withOpacity(0.2),
+                    Colors.transparent,
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.white.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildModernHeroBadge(BuildContext context, LanguageProvider languageProvider) {
+    return AnimatedSection(
+      duration: const Duration(milliseconds: 800),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(
+            color: AppColors.white.withOpacity(0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.accent,
+                    AppColors.accent.withOpacity(0.7),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.accent.withOpacity(0.5),
+                    blurRadius: 8,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Leading Investment Holding Company',
+              style: AppTextStyles.labelMedium.copyWith(
+                color: AppColors.white,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -222,23 +487,163 @@ class HeroSection extends StatelessWidget {
           width: 1,
         ),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Flexible(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.accent,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                'Leading Investment Holding Company',
+                style: AppTextStyles.labelMedium.copyWith(
+                  color: AppColors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedCTAButtons(BuildContext context, LanguageProvider languageProvider, double screenWidth) {
+    return AnimatedSection(
+      duration: const Duration(milliseconds: 1000),
+      child: Wrap(
+        spacing: 20,
+        runSpacing: 16,
+        alignment: WrapAlignment.center,
         children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.accent,
+          // Primary CTA - Enhanced gradient button
+          HoverAnimationWrapper(
+            hoverScale: 1.05,
+            elevation: 16,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.accent,
+                    AppColors.accent.withOpacity(0.8),
+                    AppColors.secondary,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.accent.withOpacity(0.4),
+                    blurRadius: 25,
+                    offset: const Offset(0, 12),
+                  ),
+                  BoxShadow(
+                    color: AppColors.accent.withOpacity(0.2),
+                    blurRadius: 40,
+                    offset: const Offset(0, 20),
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: onLearnMore,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: ResponsiveHelper.isMobile(screenWidth) ? 32 : 40,
+                    vertical: ResponsiveHelper.isMobile(screenWidth) ? 18 : 22,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: Flexible(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          AppLocalizations.translate('learn_more', languageProvider.currentLocale.languageCode),
+                          style: AppTextStyles.buttonLarge.copyWith(
+                            fontSize: ResponsiveHelper.isMobile(screenWidth) ? 16 : 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 12),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: AppColors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.arrow_forward_rounded,
+                        size: ResponsiveHelper.isMobile(screenWidth) ? 18 : 20,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ),
             ),
           ),
-          const SizedBox(width: 8),
-          Text(
-            'Leading Investment Holding Company',
-            style: AppTextStyles.labelMedium.copyWith(
-              color: AppColors.white,
-              fontWeight: FontWeight.w500,
+          
+          // Secondary CTA - Enhanced glass morphism style
+          HoverAnimationWrapper(
+            hoverScale: 1.05,
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColors.white.withOpacity(0.4),
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 25,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: ElevatedButton(
+                    onPressed: onGetInTouch,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: ResponsiveHelper.isMobile(screenWidth) ? 32 : 40,
+                        vertical: ResponsiveHelper.isMobile(screenWidth) ? 18 : 22,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Text(
+                      AppLocalizations.translate('contact_us', languageProvider.currentLocale.languageCode),
+                      style: AppTextStyles.buttonLarge.copyWith(
+                        fontSize: ResponsiveHelper.isMobile(screenWidth) ? 16 : 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],
@@ -347,6 +752,122 @@ class HeroSection extends StatelessWidget {
     );
   }
 
+  Widget _buildModernTrustIndicators(BuildContext context, LanguageProvider languageProvider, double screenWidth) {
+    if (ResponsiveHelper.isMobile(screenWidth)) {
+      return const SizedBox.shrink();
+    }
+
+    return AnimatedSection(
+      duration: const Duration(milliseconds: 1200),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+        decoration: BoxDecoration(
+          color: AppColors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(25),
+          border: Border.all(
+            color: AppColors.white.withOpacity(0.3),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 30,
+              offset: const Offset(0, 15),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(25),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildEnhancedTrustItem('25+', 'Years Experience', AppColors.accent),
+                const SizedBox(width: 50),
+                Container(
+                  width: 2,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        AppColors.white.withOpacity(0.4),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 50),
+                _buildEnhancedTrustItem('500+', 'Projects Completed', AppColors.secondary),
+                const SizedBox(width: 50),
+                Container(
+                  width: 2,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        AppColors.white.withOpacity(0.4),
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 50),
+                _buildEnhancedTrustItem('50+', 'Global Partners', AppColors.gold),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedTrustItem(String number, String label, Color accentColor) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                accentColor.withOpacity(0.2),
+                accentColor.withOpacity(0.1),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: accentColor.withOpacity(0.3),
+              width: 1,
+            ),
+          ),
+          child: Text(
+            number,
+            style: AppTextStyles.headingMedium.copyWith(
+              color: AppColors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 28,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: AppTextStyles.labelSmall.copyWith(
+            color: AppColors.white.withOpacity(0.9),
+            fontWeight: FontWeight.w500,
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildTrustIndicators(BuildContext context, LanguageProvider languageProvider, double screenWidth) {
     if (ResponsiveHelper.isMobile(screenWidth)) {
       return const SizedBox.shrink();
@@ -405,6 +926,59 @@ class HeroSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAnimatedScrollIndicator(BuildContext context, LanguageProvider languageProvider) {
+    return AnimatedSection(
+      duration: const Duration(milliseconds: 1400),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.white.withOpacity(0.1),
+              border: Border.all(
+                color: AppColors.white.withOpacity(0.3),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: AppColors.white.withOpacity(0.9),
+              size: 28,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppColors.white.withOpacity(0.2),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              AppLocalizations.translate('scroll_down', languageProvider.currentLocale.languageCode),
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.white.withOpacity(0.8),
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

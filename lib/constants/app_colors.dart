@@ -46,7 +46,7 @@ class AppColors {
   static const Color error = Color(0xFFEF4444); // Red 500
   static const Color info = Color(0xFF3B82F6); // Blue 500
   
-  // Modern Gradients
+  // Modern Gradients - Enhanced
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
     begin: Alignment.topLeft,
@@ -70,8 +70,72 @@ class AppColors {
     stops: [0.0, 0.6, 1.0],
   );
   
+  // Modern Hero Gradient with Depth
+  static const LinearGradient modernHeroGradient = LinearGradient(
+    colors: [
+      Color(0xFF0F172A),
+      Color(0xFF1E293B),
+      Color(0xFF334155),
+      Color(0xFF475569),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    stops: [0.0, 0.3, 0.7, 1.0],
+  );
+  
+  // Glassmorphism Gradients
+  static const LinearGradient glassGradient = LinearGradient(
+    colors: [
+      Color(0x20FFFFFF),
+      Color(0x10FFFFFF),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  static const LinearGradient darkGlassGradient = LinearGradient(
+    colors: [
+      Color(0x30000000),
+      Color(0x10000000),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
   static const LinearGradient cardGradient = LinearGradient(
     colors: [Color(0xFFFFFFFF), Color(0xFFF8FAFC)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  // Enhanced Card Gradient with Subtle Depth - Updated for dark background
+  static const LinearGradient modernCardGradient = LinearGradient(
+    colors: [
+      Color(0x40FFFFFF), // Semi-transparent white
+      Color(0x20FFFFFF), // More transparent white
+      Color(0x10FFFFFF), // Very transparent white
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    stops: [0.0, 0.5, 1.0],
+  );
+  
+  // Enhanced Glass Card Gradient for better visibility on dark background
+  static const LinearGradient enhancedGlassGradient = LinearGradient(
+    colors: [
+      Color(0x30FFFFFF), // More opaque for better visibility
+      Color(0x15FFFFFF), // Semi-transparent
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  // Dark-themed card gradient for sections
+  static const LinearGradient darkCardGradient = LinearGradient(
+    colors: [
+      Color(0x25FFFFFF), // Semi-transparent white overlay
+      Color(0x10FFFFFF), // Light transparent overlay
+    ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -80,6 +144,18 @@ class AppColors {
     colors: [Color(0xFFF59E0B), Color(0xFFFBBF24)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
+  );
+  
+  // Animated Gradient Colors
+  static const LinearGradient animatedGradient = LinearGradient(
+    colors: [
+      Color(0xFF3B82F6),
+      Color(0xFF10B981),
+      Color(0xFFF59E0B),
+    ],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    stops: [0.0, 0.5, 1.0],
   );
   
   // Modern Shadow Colors

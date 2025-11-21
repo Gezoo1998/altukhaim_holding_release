@@ -1,3 +1,4 @@
+import 'package:altukhaim_holding/widgets/modern_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/language_provider.dart';
@@ -6,9 +7,12 @@ import '../../utils/responsive_helper.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
 import '../common/animated_section.dart';
+import '../common/animated_background.dart';
+import '../animated_text.dart';
+import '../animations/scroll_animations.dart';
 
 class ServicesSection extends StatelessWidget {
-  const ServicesSection({Key? key}) : super(key: key);
+  const ServicesSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,20 +20,46 @@ class ServicesSection extends StatelessWidget {
     final isArabic = languageProvider.currentLocale.languageCode == 'ar';
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return AnimatedSection(
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(
-          vertical: ResponsiveHelper.getVerticalPadding(screenWidth),
-          horizontal: ResponsiveHelper.getHorizontalPadding(screenWidth),
-        ),
-        color: AppColors.white,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
+    return AnimatedBackground(
+      enableParticles: true,
+      enableGeometricShapes: true,
+      opacity: 0.7,
+      child: AnimatedSection(
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            vertical: ResponsiveHelper.getVerticalSpacing(screenWidth),
+            horizontal: ResponsiveHelper.getHorizontalPadding(screenWidth),
+          ),
+          color: Colors.transparent,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: ResponsiveHelper.getMaxWidth(screenWidth)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                // Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.white.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: AppColors.white.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    AppLocalizations.translate('services_badge', languageProvider.currentLocale.languageCode),
+                    style: AppTextStyles.labelMedium.copyWith(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
                 // Section Title
                 AnimatedSection(
                   duration: const Duration(milliseconds: 600),
@@ -38,12 +68,13 @@ class ServicesSection extends StatelessWidget {
                       'services_title',
                       languageProvider.currentLocale.languageCode,
                     ),
-                    style: AppTextStyles.headingMedium.copyWith(
-                      color: AppColors.accent,
+                    style: AppTextStyles.displayMedium.copyWith(
+                      color: AppColors.white,
                       fontSize: ResponsiveHelper.getHeadingSize(
                         screenWidth,
-                        baseSize: 36,
+                        baseSize: 42,
                       ),
+                      fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -51,25 +82,31 @@ class ServicesSection extends StatelessWidget {
                 const SizedBox(height: 16),
 
                 // Section Subtitle
-                AnimatedSection(
-                  duration: const Duration(milliseconds: 800),
-                  child: Text(
-                    AppLocalizations.translate(
-                      'services_subtitle',
-                      languageProvider.currentLocale.languageCode,
+                Container(
+                  constraints: BoxConstraints(maxWidth: ResponsiveHelper.isMobile(screenWidth) ? screenWidth * 0.9 : 600),
+                  child: AnimatedSection(
+                    duration: const Duration(milliseconds: 800),
+                    child: Text(
+                      AppLocalizations.translate(
+                        'services_subtitle',
+                        languageProvider.currentLocale.languageCode,
+                      ),
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.white.withOpacity(0.8),
+                        fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 18),
+                        height: 1.6,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    style: AppTextStyles.heroSubtitle.copyWith(
-                      color: AppColors.mediumGray,
-                      fontSize: ResponsiveHelper.getBodySize(screenWidth),
-                    ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: 60),
+                
+                SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 60 : 80),
 
                 // Services Grid
                 _buildServicesGrid(languageProvider, isArabic, screenWidth),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -116,7 +153,9 @@ class ServicesSection extends StatelessWidget {
     ];
 
     if (ResponsiveHelper.isMobile(screenWidth)) {
-      return StaggeredAnimationWrapper(
+      return StaggeredScrollAnimation(
+        staggerDelay: const Duration(milliseconds: 150),
+        animationDuration: const Duration(milliseconds: 800),
         children: services
             .map(
               (service) => Padding(
@@ -155,20 +194,24 @@ class ServicesSection extends StatelessWidget {
         itemCount: services.length,
         itemBuilder: (context, index) {
           final service = services[index];
-          return HoverAnimationWrapper(
-            elevation: 8,
-            child: _buildServiceCard(
-              service['icon'] as IconData,
-              AppLocalizations.translate(
-                service['title'] as String,
-                languageProvider.currentLocale.languageCode,
+          return ScrollFadeIn(
+            duration: Duration(milliseconds: 600 + (index * 100)),
+            slideFromBottom: true,
+            child: HoverAnimationWrapper(
+              elevation: 8,
+              child: _buildServiceCard(
+                service['icon'] as IconData,
+                AppLocalizations.translate(
+                  service['title'] as String,
+                  languageProvider.currentLocale.languageCode,
+                ),
+                AppLocalizations.translate(
+                  service['description'] as String,
+                  languageProvider.currentLocale.languageCode,
+                ),
+                isArabic,
+                screenWidth,
               ),
-              AppLocalizations.translate(
-                service['description'] as String,
-                languageProvider.currentLocale.languageCode,
-              ),
-              isArabic,
-              screenWidth,
             ),
           );
         },
@@ -183,23 +226,9 @@ class ServicesSection extends StatelessWidget {
     bool isArabic,
     double screenWidth,
   ) {
-    return Container(
+    return ModernCard(
+      enableGlass: true,
       padding: EdgeInsets.all(ResponsiveHelper.isMobile(screenWidth) ? 24 : 32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-        border: Border.all(
-          color: AppColors.lightGray.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -235,24 +264,30 @@ class ServicesSection extends StatelessWidget {
           const SizedBox(height: 24),
 
           // Title
-          Text(
-            title,
+          AnimatedText(
+            text: title,
             style: AppTextStyles.headingSmall.copyWith(
-              color: AppColors.darkGray,
+              fontSize: ResponsiveHelper.getHeadingSize(screenWidth, baseSize: 20),
+              color: AppColors.white,
               fontWeight: FontWeight.bold,
             ),
             textAlign: TextAlign.center,
+            animationType: AnimationType.fadeInUp,
           ),
           const SizedBox(height: 16),
 
           // Description
-          Text(
-            description,
-            style: AppTextStyles.bodySmall.copyWith(
-              color: AppColors.mediumGray,
-              height: 1.6,
+          Expanded(
+            child: AnimatedText(
+              text: description,
+              style: AppTextStyles.bodySmall.copyWith(
+                fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 14),
+                color: AppColors.white.withOpacity(0.8),
+                height: 1.6,
+              ),
+              textAlign: TextAlign.center,
+              animationType: AnimationType.fadeIn,
             ),
-            textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
 
@@ -262,8 +297,16 @@ class ServicesSection extends StatelessWidget {
               // TODO: Implement service details navigation
             },
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.accent,
+              foregroundColor: AppColors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              overlayColor: AppColors.white.withOpacity(0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(
+                  color: AppColors.white.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -274,7 +317,8 @@ class ServicesSection extends StatelessWidget {
                     'en',
                   ), // Using 'en' as fallback
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.accent,
+                    fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 12),
+                    color: AppColors.white,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -282,7 +326,7 @@ class ServicesSection extends StatelessWidget {
                 Icon(
                   isArabic ? Icons.arrow_back : Icons.arrow_forward,
                   size: 16,
-                  color: AppColors.accent,
+                  color: AppColors.white,
                 ),
               ],
             ),

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import '../animated_text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/language_provider.dart';
@@ -10,7 +11,7 @@ import '../common/animated_section.dart';
 class AppHeader extends StatefulWidget implements PreferredSizeWidget {
   final Function(String)? onNavigate;
 
-  const AppHeader({Key? key, this.onNavigate}) : super(key: key);
+  const AppHeader({super.key, this.onNavigate});
 
   @override
   State<AppHeader> createState() => _AppHeaderState();
@@ -59,50 +60,70 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
           end: Alignment.bottomRight,
           colors: [
             AppColors.surface.withOpacity(0.95),
-            AppColors.surface.withOpacity(0.98),
+            AppColors.surface.withOpacity(0.85),
+            AppColors.primary.withOpacity(0.1),
           ],
+          stops: const [0.0, 0.7, 1.0],
         ),
         border: Border(
           bottom: BorderSide(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.white.withOpacity(0.15),
             width: 1,
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+            color: AppColors.shadowLight.withOpacity(0.3),
+            blurRadius: 25,
+            offset: const Offset(0, 8),
             spreadRadius: 0,
+          ),
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.1),
+            blurRadius: 40,
+            offset: const Offset(0, 4),
+            spreadRadius: -5,
           ),
         ],
       ),
       child: ClipRRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 20 : (isTablet ? 32 : 48),
-            ),
-            child: Row(
-              children: [
-                // Logo
-                _buildLogo(languageProvider, isMobile),
-                const Spacer(),
-
-                if (!isMobile) ...[
-                  // Desktop Navigation
-                  _buildDesktopNavigation(languageProvider),
-                  const SizedBox(width: 32),
-                  _buildLanguageToggle(languageProvider),
-                ] else ...[
-                  // Mobile Language Toggle
-                  _buildLanguageToggle(languageProvider),
-                  const SizedBox(width: 16),
-                  // Mobile Menu Button
-                  _buildMobileMenuButton(),
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppColors.white.withOpacity(0.2),
+                  AppColors.white.withOpacity(0.1),
                 ],
-              ],
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 20 : (isTablet ? 32 : 48),
+              ),
+              child: Row(
+                children: [
+                  // Logo
+                  _buildLogo(languageProvider, isMobile),
+                  const Spacer(),
+
+                  if (!isMobile) ...[
+                    // Desktop Navigation
+                    _buildDesktopNavigation(languageProvider),
+                    const SizedBox(width: 32),
+                    _buildLanguageToggle(languageProvider),
+                  ] else ...[
+                    // Mobile Language Toggle
+                    _buildLanguageToggle(languageProvider),
+                    const SizedBox(width: 16),
+                    // Mobile Menu Button
+                    _buildMobileMenuButton(),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
@@ -142,30 +163,30 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  AppLocalizations.translate(
+                AnimatedText(
+                  text: AppLocalizations.translate(
                     'hero_title',
                     languageProvider.currentLocale.languageCode,
                   ),
                   style: AppTextStyles.headingSmall.copyWith(
-                    color: AppColors.textPrimary,
+                    color: AppColors.white,
                     fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
+                  animationType: AnimationType.fadeInUp,
+                  duration: const Duration(milliseconds: 600),
                 ),
-                Text(
-                  AppLocalizations.translate(
+                AnimatedText(
+                  text: AppLocalizations.translate(
                     'company_tagline',
                     languageProvider.currentLocale.languageCode,
                   ),
                   style: AppTextStyles.caption.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.white.withOpacity(0.8),
                     fontWeight: FontWeight.w500,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
+                  animationType: AnimationType.fadeIn,
+                  duration: const Duration(milliseconds: 800),
                 ),
               ],
             ),
@@ -250,7 +271,7 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
                       }
                     },
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.textPrimary,
+                      foregroundColor: AppColors.white,
                       padding: const EdgeInsets.symmetric(
                         vertical: 12,
                         horizontal: 16,
@@ -258,7 +279,7 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      overlayColor: AppColors.primary.withOpacity(0.1),
+                      overlayColor: AppColors.white.withOpacity(0.1),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -266,14 +287,14 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
                         Icon(
                           item['icon'] as IconData,
                           size: 18,
-                          color: AppColors.textSecondary,
+                          color: AppColors.white.withOpacity(0.8),
                         ),
                         const SizedBox(width: 8),
                         Text(
                           item['label']! as String,
                           style: AppTextStyles.bodyMedium.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: AppColors.white,
                           ),
                         ),
                       ],
@@ -292,27 +313,52 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
     return AnimatedSection(
       duration: const Duration(milliseconds: 400),
       child: Container(
+        constraints: const BoxConstraints(
+          maxWidth: 140,
+        ),
         decoration: BoxDecoration(
-          color: AppColors.surface.withOpacity(0.8),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppColors.white.withOpacity(0.25),
+              AppColors.white.withOpacity(0.15),
+            ],
+          ),
           border: Border.all(
-            color: AppColors.primary.withOpacity(0.2),
+            color: AppColors.white.withOpacity(0.4),
             width: 1.5,
           ),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: AppColors.shadowLight,
-              blurRadius: 8,
+              color: AppColors.shadowLight.withOpacity(0.2),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+              spreadRadius: 0,
+            ),
+            BoxShadow(
+              color: AppColors.primary.withOpacity(0.1),
+              blurRadius: 20,
               offset: const Offset(0, 2),
+              spreadRadius: -2,
             ),
           ],
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildLanguageButton('العربية', 'ar', languageProvider),
-            _buildLanguageButton('EN', 'en', languageProvider),
-          ],
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(28),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: IntrinsicWidth(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildLanguageButton('العربية', 'ar', languageProvider),
+                  _buildLanguageButton('EN', 'en', languageProvider),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -332,27 +378,68 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
           languageProvider.setLanguage(languageCode);
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOutCubic,
+          padding: EdgeInsets.symmetric(
+            horizontal: languageCode == 'ar' ? 12 : 14,
+            vertical: 10,
+          ),
+          constraints: BoxConstraints(
+            minWidth: languageCode == 'ar' ? 55 : 45,
+          ),
           decoration: BoxDecoration(
-            gradient: isSelected ? AppColors.primaryGradient : null,
+            gradient: isSelected 
+                ? LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.8),
+                    ],
+                  )
+                : null,
             color: isSelected ? null : Colors.transparent,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(22),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: AppColors.primary.withOpacity(0.4),
+                      blurRadius: 12,
+                      offset: const Offset(0, 3),
+                      spreadRadius: 0,
+                    ),
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
+                      spreadRadius: -2,
                     ),
                   ]
-                : null,
+                : [
+                    BoxShadow(
+                      color: AppColors.white.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                      spreadRadius: 0,
+                    ),
+                  ],
           ),
-          child: Text(
-            text,
-            style: AppTextStyles.labelMedium.copyWith(
-              color: isSelected ? AppColors.surface : AppColors.textSecondary,
-              fontWeight: FontWeight.w600,
+          child: Center(
+            child: AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 300),
+              style: AppTextStyles.labelMedium.copyWith(
+                color: isSelected 
+                    ? AppColors.surface 
+                    : AppColors.white.withOpacity(0.9),
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                fontSize: 13,
+                letterSpacing: 0.5,
+              ),
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ),
@@ -366,10 +453,10 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
       child: HoverAnimationWrapper(
         child: Container(
           decoration: BoxDecoration(
-            color: AppColors.surface.withOpacity(0.8),
+            color: AppColors.white.withOpacity(0.15),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.primary.withOpacity(0.2),
+              color: AppColors.white.withOpacity(0.3),
               width: 1.5,
             ),
             boxShadow: [
@@ -399,7 +486,7 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
                   angle: _menuAnimation.value * 0.5,
                   child: Icon(
                     _isMenuOpen ? Icons.close_rounded : Icons.menu_rounded,
-                    color: AppColors.primary,
+                    color: AppColors.white,
                     size: 24,
                   ),
                 );
@@ -503,7 +590,7 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
                   width: 48,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: AppColors.textSecondary.withOpacity(0.3),
+                    color: AppColors.white.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -543,12 +630,12 @@ class _AppHeaderState extends State<AppHeader> with TickerProviderStateMixin {
                           item['label']! as String,
                           style: AppTextStyles.bodyLarge.copyWith(
                             fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                            color: AppColors.white,
                           ),
                         ),
                         trailing: Icon(
                           Icons.arrow_forward_ios_rounded,
-                          color: AppColors.textSecondary,
+                          color: AppColors.white.withOpacity(0.7),
                           size: 16,
                         ),
                         onTap: () {

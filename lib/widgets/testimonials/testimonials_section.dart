@@ -1,73 +1,68 @@
+import 'package:altukhaim_holding/widgets/modern_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/language_provider.dart';
 import '../../utils/app_localizations.dart';
+import '../../utils/responsive_helper.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
 import '../common/animated_section.dart';
+import '../animated_text.dart';
+import '../animations/scroll_animations.dart';
 
 class TestimonialsSection extends StatelessWidget {
-  const TestimonialsSection({Key? key}) : super(key: key);
+  const TestimonialsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
         final isArabic = languageProvider.isArabic;
+        final screenWidth = MediaQuery.of(context).size.width;
         
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            final isMobile = constraints.maxWidth < 768;
-            final isTablet = constraints.maxWidth >= 768 && constraints.maxWidth < 1024;
-            
-            return Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(
-                vertical: isMobile ? 80 : 120,
-                horizontal: isMobile ? 20 : 40,
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            vertical: ResponsiveHelper.getVerticalSpacing(screenWidth),
+            horizontal: ResponsiveHelper.getHorizontalPadding(screenWidth),
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: ResponsiveHelper.getMaxWidth(screenWidth)),
+              child: Column(
+                children: [
+                  // Section Header
+                  AnimatedSection(
+                    child: _buildSectionHeader(context, isArabic, screenWidth),
+                  ),
+                  
+                  SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 60 : 80),
+                  
+                  // Testimonials Grid
+                  if (ResponsiveHelper.isMobile(screenWidth))
+                    _buildMobileLayout(context, isArabic, screenWidth)
+                  else
+                    _buildDesktopLayout(context, isArabic, screenWidth),
+                  
+                  SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 60 : 80),
+                  
+                  // Trust Indicators
+                  AnimatedSection(
+                    child: _buildTrustIndicators(context, isArabic, screenWidth),
+                  ),
+                ],
               ),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceVariant,
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/pattern-bg.svg'),
-                  fit: BoxFit.cover,
-                  opacity: 0.03,
-                ),
-              ),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: Column(
-                  children: [
-                    // Section Header
-                    AnimatedSection(
-                      child: _buildSectionHeader(context, isArabic, isMobile),
-                    ),
-                    
-                    const SizedBox(height: 80),
-                    
-                    // Testimonials Grid
-                    if (isMobile)
-                      _buildMobileLayout(context, isArabic)
-                    else
-                      _buildDesktopLayout(context, isArabic, isTablet),
-                    
-                    const SizedBox(height: 80),
-                    
-                    // Trust Indicators
-                    AnimatedSection(
-                      child: _buildTrustIndicators(context, isArabic, isMobile),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+            ),
+          ),
         );
       },
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, bool isArabic, bool isMobile) {
+  Widget _buildSectionHeader(BuildContext context, bool isArabic, double screenWidth) {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
         return Column(
@@ -76,17 +71,17 @@ class TestimonialsSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-               color: AppColors.primary.withOpacity(0.1),
+               color: AppColors.white.withOpacity(0.1),
                borderRadius: BorderRadius.circular(20),
                border: Border.all(
-                 color: AppColors.primary.withOpacity(0.2),
+                 color: AppColors.white.withOpacity(0.3),
                  width: 1,
                ),
              ),
              child: Text(
                AppLocalizations.translate('testimonials_badge', languageProvider.currentLocale.languageCode),
                style: AppTextStyles.labelMedium.copyWith(
-                 color: AppColors.primary,
+                 color: AppColors.white,
                  fontWeight: FontWeight.w600,
                ),
              ),
@@ -95,27 +90,31 @@ class TestimonialsSection extends StatelessWidget {
             const SizedBox(height: 16),
             
             // Title
-            Text(
-              AppLocalizations.translate('testimonials_title', languageProvider.currentLocale.languageCode),
+            AnimatedText(
+              text: AppLocalizations.translate('testimonials_title', languageProvider.currentLocale.languageCode),
               style: AppTextStyles.displayMedium.copyWith(
+                fontSize: ResponsiveHelper.getHeadingSize(screenWidth, baseSize: 42),
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: AppColors.white,
               ),
               textAlign: TextAlign.center,
+              animationType: AnimationType.fadeInUp,
             ),
             
             const SizedBox(height: 16),
             
             // Subtitle
             Container(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Text(
-                AppLocalizations.translate('testimonials_subtitle', languageProvider.currentLocale.languageCode),
+              constraints: BoxConstraints(maxWidth: ResponsiveHelper.isMobile(screenWidth) ? screenWidth * 0.9 : 600),
+              child: AnimatedText(
+                text: AppLocalizations.translate('testimonials_subtitle', languageProvider.currentLocale.languageCode),
                 style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.textSecondary,
+                  fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 18),
+                  color: AppColors.white.withOpacity(0.8),
                   height: 1.6,
                 ),
                 textAlign: TextAlign.center,
+                animationType: AnimationType.fadeIn,
               ),
             ),
           ],
@@ -124,7 +123,7 @@ class TestimonialsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildMobileLayout(BuildContext context, bool isArabic) {
+  Widget _buildMobileLayout(BuildContext context, bool isArabic, double screenWidth) {
     final testimonials = _getTestimonials(isArabic);
     
     return Column(
@@ -138,60 +137,37 @@ class TestimonialsSection extends StatelessWidget {
             testimonial: testimonial['quote'],
             rating: testimonial['rating'],
             isArabic: isArabic,
-            isMobile: true,
+            screenWidth: screenWidth,
           ),
         );
       }).toList(),
     );
   }
 
-  Widget _buildDesktopLayout(BuildContext context, bool isArabic, bool isTablet) {
+  Widget _buildDesktopLayout(BuildContext context, bool isArabic, double screenWidth) {
     final testimonials = _getTestimonials(isArabic);
+    final crossAxisCount = ResponsiveHelper.isTablet(screenWidth) ? 2 : 3;
+    final spacing = ResponsiveHelper.isTablet(screenWidth) ? 24.0 : 32.0;
     
-    if (isTablet) {
-      return Wrap(
-        spacing: 24,
-        runSpacing: 24,
-        children: testimonials.map((testimonial) {
-          return SizedBox(
-            width: (MediaQuery.of(context).size.width - 128) / 2,
-            child: _buildTestimonialCard(
-              name: testimonial['name'],
-              position: testimonial['position'],
-              company: testimonial['company'],
-              testimonial: testimonial['quote'],
-              rating: testimonial['rating'],
-              isArabic: isArabic,
-              isMobile: false,
-            ),
-          );
-        }).toList(),
-      );
-    } else {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: testimonials.asMap().entries.map((entry) {
-          final index = entry.key;
-          final testimonial = entry.value;
-          return Expanded(
-            child: Container(
-              margin: EdgeInsets.only(
-                right: index < testimonials.length - 1 ? 24 : 0,
-              ),
-              child: _buildTestimonialCard(
-                name: testimonial['name'],
-                position: testimonial['position'],
-                company: testimonial['company'],
-                testimonial: testimonial['quote'],
-                rating: testimonial['rating'],
-                isArabic: isArabic,
-                isMobile: false,
-              ),
-            ),
-          );
-        }).toList(),
-      );
-    }
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: crossAxisCount,
+      childAspectRatio: ResponsiveHelper.isTablet(screenWidth) ? 1.1 : 1.0,
+      crossAxisSpacing: spacing,
+      mainAxisSpacing: spacing,
+      children: testimonials.map((testimonial) {
+        return _buildTestimonialCard(
+          name: testimonial['name'],
+          position: testimonial['position'],
+          company: testimonial['company'],
+          testimonial: testimonial['quote'],
+          rating: testimonial['rating'],
+          isArabic: isArabic,
+          screenWidth: screenWidth,
+        );
+      }).toList(),
+    );
   }
 
   Widget _buildTestimonialCard({
@@ -201,21 +177,11 @@ class TestimonialsSection extends StatelessWidget {
     required String testimonial,
     required int rating,
     required bool isArabic,
-    required bool isMobile,
+    required double screenWidth,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.shadowMedium,
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
+    return ModernCard(
+      enableGlass: true,
+      padding: EdgeInsets.all(ResponsiveHelper.isMobile(screenWidth) ? 20 : 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -224,60 +190,82 @@ class TestimonialsSection extends StatelessWidget {
             children: List.generate(5, (index) {
               return Icon(
                 index < rating ? Icons.star : Icons.star_border,
-                color: AppColors.gold,
-                size: 20,
+                color: AppColors.accent,
+                size: ResponsiveHelper.isMobile(screenWidth) ? 18 : 20,
               );
             }),
           ),
           
-          const SizedBox(height: 20),
+          SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 16 : 20),
           
           // Testimonial Text
-          Text(
-            testimonial,
-            style: AppTextStyles.bodyLarge.copyWith(
-              fontStyle: FontStyle.italic,
-              height: 1.6,
+          Expanded(
+            child: Text(
+              testimonial,
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 16),
+                color: AppColors.white.withOpacity(0.9),
+                height: 1.6,
+                fontStyle: FontStyle.italic,
+              ),
+              textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
             ),
-            textAlign: isArabic ? TextAlign.right : TextAlign.left,
           ),
           
-          const SizedBox(height: 24),
+          SizedBox(height: ResponsiveHelper.isMobile(screenWidth) ? 16 : 20),
           
           // Author Info
           Row(
             children: [
+              // Avatar
               Container(
-                width: 48,
-                height: 48,
+                width: ResponsiveHelper.isMobile(screenWidth) ? 40 : 48,
+                height: ResponsiveHelper.isMobile(screenWidth) ? 40 : 48,
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.1),
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary,
+                      AppColors.accent,
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(24),
                 ),
-                child: Icon(
-                  Icons.person,
-                  color: AppColors.accent,
-                  size: 24,
+                child: Center(
+                  child: Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : 'A',
+                    style: AppTextStyles.headingSmall.copyWith(
+                      fontSize: ResponsiveHelper.isMobile(screenWidth) ? 16 : 18,
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
               
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               
+              // Name and Position
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       name,
-                      style: AppTextStyles.titleMedium.copyWith(
+                      style: AppTextStyles.labelLarge.copyWith(
+                        fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 16),
+                        color: AppColors.white,
                         fontWeight: FontWeight.w600,
                       ),
+                      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       '$position, $company',
                       style: AppTextStyles.bodySmall.copyWith(
-                        color: AppColors.textTertiary,
+                        fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 14),
+                        color: AppColors.white.withOpacity(0.7),
                       ),
+                      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
                     ),
                   ],
                 ),
@@ -289,31 +277,22 @@ class TestimonialsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildTrustIndicators(BuildContext context, bool isArabic, bool isMobile) {
+  Widget _buildTrustIndicators(BuildContext context, bool isArabic, double screenWidth) {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
-        return Container(
-          padding: EdgeInsets.all(isMobile ? 24 : 40),
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.shadowLight,
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
+        return ModernCard(
+          enableGlass: true,
+          padding: EdgeInsets.all(ResponsiveHelper.isMobile(screenWidth) ? 24 : 40),
           child: Column(
             children: [
-              if (isMobile) ...[
+              if (ResponsiveHelper.isMobile(screenWidth)) ...[
                 _buildTrustItem(
                   context,
                   '1000+',
                   AppLocalizations.translate('satisfied_clients', languageProvider.currentLocale.languageCode),
                   Icons.people_outline,
                   isArabic,
+                  screenWidth,
                 ),
                 const SizedBox(height: 32),
                 _buildTrustItem(
@@ -322,6 +301,7 @@ class TestimonialsSection extends StatelessWidget {
                   AppLocalizations.translate('satisfaction_rate', languageProvider.currentLocale.languageCode),
                   Icons.thumb_up_outlined,
                   isArabic,
+                  screenWidth,
                 ),
                 const SizedBox(height: 32),
                 _buildTrustItem(
@@ -330,6 +310,7 @@ class TestimonialsSection extends StatelessWidget {
                   AppLocalizations.translate('years_experience', languageProvider.currentLocale.languageCode),
                   Icons.timeline_outlined,
                   isArabic,
+                  screenWidth,
                 ),
                 const SizedBox(height: 32),
                 _buildTrustItem(
@@ -338,6 +319,7 @@ class TestimonialsSection extends StatelessWidget {
                   AppLocalizations.translate('support_available', languageProvider.currentLocale.languageCode),
                   Icons.support_agent_outlined,
                   isArabic,
+                  screenWidth,
                 ),
               ] else ...[
                 Row(
@@ -349,6 +331,7 @@ class TestimonialsSection extends StatelessWidget {
                         AppLocalizations.translate('satisfied_clients', languageProvider.currentLocale.languageCode),
                         Icons.people_outline,
                         isArabic,
+                        screenWidth,
                       ),
                     ),
                     Expanded(
@@ -358,6 +341,7 @@ class TestimonialsSection extends StatelessWidget {
                         AppLocalizations.translate('satisfaction_rate', languageProvider.currentLocale.languageCode),
                         Icons.thumb_up_outlined,
                         isArabic,
+                        screenWidth,
                       ),
                     ),
                     Expanded(
@@ -367,6 +351,7 @@ class TestimonialsSection extends StatelessWidget {
                         AppLocalizations.translate('years_experience', languageProvider.currentLocale.languageCode),
                         Icons.timeline_outlined,
                         isArabic,
+                        screenWidth,
                       ),
                     ),
                     Expanded(
@@ -376,6 +361,7 @@ class TestimonialsSection extends StatelessWidget {
                         AppLocalizations.translate('support_available', languageProvider.currentLocale.languageCode),
                         Icons.support_agent_outlined,
                         isArabic,
+                        screenWidth,
                       ),
                     ),
                   ],
@@ -388,41 +374,45 @@ class TestimonialsSection extends StatelessWidget {
     );
   }
 
-  Widget _buildTrustItem(BuildContext context, String number, String label, IconData icon, bool isArabic) {
+  Widget _buildTrustItem(BuildContext context, String number, String label, IconData icon, bool isArabic, double screenWidth) {
     return Column(
       children: [
         Container(
-          width: 64,
-          height: 64,
+          width: ResponsiveHelper.isMobile(screenWidth) ? 56 : 64,
+          height: ResponsiveHelper.isMobile(screenWidth) ? 56 : 64,
           decoration: BoxDecoration(
-            color: AppColors.accent.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(32),
+            color: AppColors.accent.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(ResponsiveHelper.isMobile(screenWidth) ? 28 : 32),
           ),
           child: Icon(
             icon,
-            color: AppColors.accent,
-            size: 32,
+            color: AppColors.white,
+            size: ResponsiveHelper.isMobile(screenWidth) ? 28 : 32,
           ),
         ),
         
         const SizedBox(height: 16),
         
-        Text(
-          number,
+        AnimatedText(
+          text: number,
           style: AppTextStyles.headingLarge.copyWith(
-            color: AppColors.accent,
+            fontSize: ResponsiveHelper.getHeadingSize(screenWidth, baseSize: 32),
+            color: AppColors.white,
             fontWeight: FontWeight.w800,
           ),
+          animationType: AnimationType.fadeInUp,
         ),
         
         const SizedBox(height: 8),
         
-        Text(
-          label,
+        AnimatedText(
+          text: label,
           style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textSecondary,
+            fontSize: ResponsiveHelper.getBodySize(screenWidth, baseSize: 14),
+            color: AppColors.white.withOpacity(0.8),
           ),
           textAlign: TextAlign.center,
+          animationType: AnimationType.fadeIn,
         ),
       ],
     );

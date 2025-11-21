@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
-import '../../providers/language_provider.dart';
-import '../../utils/app_localizations.dart';
-import '../../utils/responsive_helper.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/app_text_styles.dart';
+import '../../utils/app_localizations.dart';
+import '../../providers/language_provider.dart';
 import '../common/animated_section.dart';
+import '../common/animated_background.dart';
+import '../modern_card.dart';
+import '../animated_text.dart';
+import '../animations/scroll_animations.dart';
 
 class ContactSection extends StatelessWidget {
   const ContactSection({super.key});
@@ -17,35 +19,39 @@ class ContactSection extends StatelessWidget {
       builder: (context, languageProvider, child) {
         final isArabic = languageProvider.currentLocale.languageCode == 'ar';
         
-        return Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                AppColors.surface,
-                AppColors.surface.withValues(alpha: 0.8),
-                AppColors.primary.withValues(alpha: 0.05),
-              ],
+        return AnimatedBackground(
+          enableParticles: true,
+          enableGeometricShapes: true,
+          opacity: 0.4,
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  AppColors.primary.withValues(alpha: 0.02),
+                  AppColors.primary.withValues(alpha: 0.05),
+                ],
+              ),
             ),
-          ),
-          child: Stack(
-            children: [
-              // Background geometric shapes
-              _buildBackgroundShapes(),
-              
-              // Main content
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 20),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isMobile = constraints.maxWidth < 768;
-                    final isTablet = constraints.maxWidth < 1024;
-                    
-                    return Center(
-                      child: Container(
-                        constraints: const BoxConstraints(maxWidth: 1200),
+            child: Stack(
+              children: [
+                // Background geometric shapes
+                _buildBackgroundShapes(),
+                
+                // Main content
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 20),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isMobile = constraints.maxWidth < 768;
+                      final isTablet = constraints.maxWidth < 1024;
+                      
+                      return Center(
+                        child: Container(
+                          constraints: const BoxConstraints(maxWidth: 1200),
                         child: Column(
                           children: [
                             // Section Header
@@ -67,7 +73,8 @@ class ContactSection extends StatelessWidget {
                   },
                 ),
               ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -154,14 +161,15 @@ class ContactSection extends StatelessWidget {
         const SizedBox(height: 24),
         
         // Title
-        Text(
-          AppLocalizations.translate('contact_title', isArabic ? 'ar' : 'en'),
+        AnimatedText(
+          text: AppLocalizations.translate('contact_title', isArabic ? 'ar' : 'en'),
           style: AppTextStyles.displayMedium.copyWith(
             fontSize: isMobile ? 32 : (isTablet ? 40 : 48),
-            color: AppColors.textPrimary,
+            color: AppColors.white,
             fontWeight: FontWeight.bold,
           ),
           textAlign: TextAlign.center,
+          animationType: AnimationType.fadeInUp,
         ),
         
         const SizedBox(height: 16),
@@ -169,14 +177,15 @@ class ContactSection extends StatelessWidget {
         // Subtitle
         Container(
           constraints: BoxConstraints(maxWidth: isMobile ? double.infinity : 600),
-          child: Text(
-            AppLocalizations.translate('contact_subtitle', isArabic ? 'ar' : 'en'),
+          child: AnimatedText(
+            text: AppLocalizations.translate('contact_subtitle', isArabic ? 'ar' : 'en'),
             style: AppTextStyles.bodyLarge.copyWith(
               fontSize: isMobile ? 16 : 18,
-              color: AppColors.textSecondary,
+              color: AppColors.white.withOpacity(0.9),
               height: 1.6,
             ),
             textAlign: TextAlign.center,
+            animationType: AnimationType.fadeIn,
           ),
         ),
       ],
@@ -187,10 +196,11 @@ class ContactSection extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Contact Information
+         // Contact Information
          Expanded(
            flex: 1,
            child: AnimatedSection(
+             duration: const Duration(milliseconds: 800),
              child: _buildContactInfo(context, isArabic, isMobile, isTablet),
            ),
          ),
@@ -201,6 +211,7 @@ class ContactSection extends StatelessWidget {
          Expanded(
            flex: 1,
            child: AnimatedSection(
+             duration: const Duration(milliseconds: 1000),
              child: _buildContactForm(context, isArabic, isMobile, isTablet),
            ),
          ),
@@ -213,6 +224,7 @@ class ContactSection extends StatelessWidget {
       children: [
          // Contact Information
          AnimatedSection(
+           duration: const Duration(milliseconds: 800),
            child: _buildContactInfo(context, isArabic, isMobile, false),
          ),
          
@@ -220,6 +232,7 @@ class ContactSection extends StatelessWidget {
          
          // Contact Form
          AnimatedSection(
+           duration: const Duration(milliseconds: 1000),
            child: _buildContactForm(context, isArabic, isMobile, false),
          ),
        ],
@@ -230,40 +243,49 @@ class ContactSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: LinearGradient(
+          colors: [
+            AppColors.white.withOpacity(0.15),
+            AppColors.white.withOpacity(0.08),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.white.withOpacity(0.3),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 8),
           ),
         ],
-        border: Border.all(
-          color: AppColors.lightGray,
-          width: 1,
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section title
-          Text(
-            AppLocalizations.translate('contact_info', isArabic ? 'ar' : 'en'),
+          AnimatedText(
+            text: AppLocalizations.translate('contact_info', isArabic ? 'ar' : 'en'),
             style: AppTextStyles.headingMedium.copyWith(
               fontSize: isMobile ? 20 : 24,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: AppColors.white,
             ),
+            animationType: AnimationType.fadeInUp,
           ),
           
           const SizedBox(height: 8),
           
-          Text(
-            AppLocalizations.translate('contact_info_subtitle', isArabic ? 'ar' : 'en'),
+          AnimatedText(
+            text: AppLocalizations.translate('contact_info_subtitle', isArabic ? 'ar' : 'en'),
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.white.withOpacity(0.8),
             ),
+            animationType: AnimationType.fadeIn,
           ),
           
           const SizedBox(height: 32),
@@ -302,13 +324,13 @@ class ContactSection extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppColors.primary.withValues(alpha: 0.05),
-                  AppColors.accent.withValues(alpha: 0.05),
+                  AppColors.white.withOpacity(0.1),
+                  AppColors.white.withOpacity(0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: AppColors.white.withOpacity(0.2),
                 width: 1,
               ),
             ),
@@ -319,25 +341,27 @@ class ContactSection extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.access_time_outlined,
-                      color: AppColors.primary,
+                      color: AppColors.white,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      AppLocalizations.translate('business_hours', isArabic ? 'ar' : 'en'),
+                    AnimatedText(
+                      text: AppLocalizations.translate('business_hours', isArabic ? 'ar' : 'en'),
                       style: AppTextStyles.labelLarge.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: AppColors.white,
                       ),
+                      animationType: AnimationType.fadeInUp,
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  AppLocalizations.translate('business_hours_details', isArabic ? 'ar' : 'en'),
+                AnimatedText(
+                  text: AppLocalizations.translate('business_hours_details', isArabic ? 'ar' : 'en'),
                   style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.white.withOpacity(0.8),
                   ),
+                  animationType: AnimationType.fadeIn,
                 ),
               ],
             ),
@@ -351,40 +375,49 @@ class ContactSection extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        gradient: LinearGradient(
+          colors: [
+            AppColors.white.withOpacity(0.15),
+            AppColors.white.withOpacity(0.08),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.white.withOpacity(0.3),
+          width: 1.5,
+        ),
         boxShadow: [
           BoxShadow(
-            color: AppColors.shadowLight,
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 8),
           ),
         ],
-        border: Border.all(
-          color: AppColors.lightGray,
-          width: 1,
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Form title
-          Text(
-            AppLocalizations.translate('send_message', isArabic ? 'ar' : 'en'),
+          AnimatedText(
+            text: AppLocalizations.translate('send_message', isArabic ? 'ar' : 'en'),
             style: AppTextStyles.headingMedium.copyWith(
               fontSize: isMobile ? 20 : 24,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: AppColors.white,
             ),
+            animationType: AnimationType.fadeInUp,
           ),
           
           const SizedBox(height: 8),
           
-          Text(
-            AppLocalizations.translate('send_message_subtitle', isArabic ? 'ar' : 'en'),
+          AnimatedText(
+            text: AppLocalizations.translate('send_message_subtitle', isArabic ? 'ar' : 'en'),
             style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.white.withOpacity(0.8),
             ),
+            animationType: AnimationType.fadeIn,
           ),
           
           const SizedBox(height: 32),
@@ -429,46 +462,56 @@ class ContactSection extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.accent],
+                  colors: [
+                    AppColors.accent,
+                    AppColors.accent.withOpacity(0.8),
+                  ],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
-                    blurRadius: 12,
+                    color: AppColors.accent.withOpacity(0.3),
+                    blurRadius: 15,
                     offset: const Offset(0, 6),
                   ),
                 ],
               ),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle form submission
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.send_outlined,
-                      color: AppColors.surface,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      AppLocalizations.translate('send_message_button', isArabic ? 'ar' : 'en'),
-                      style: AppTextStyles.buttonLarge.copyWith(
-                        color: AppColors.surface,
-                        fontWeight: FontWeight.w600,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Handle form submission
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
+                      overlayColor: AppColors.white.withOpacity(0.1),
                     ),
-                  ],
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.send_outlined,
+                          color: AppColors.white,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          AppLocalizations.translate('send_message_button', isArabic ? 'ar' : 'en'),
+                          style: AppTextStyles.buttonLarge.copyWith(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -492,19 +535,19 @@ class ContactSection extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primary.withValues(alpha: 0.1),
-                AppColors.accent.withValues(alpha: 0.1),
+                AppColors.white.withOpacity(0.15),
+                AppColors.white.withOpacity(0.1),
               ],
             ),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppColors.primary.withValues(alpha: 0.2),
+              color: AppColors.white.withOpacity(0.3),
               width: 1,
             ),
           ),
           child: Icon(
             icon,
-            color: AppColors.primary,
+            color: AppColors.white,
             size: 20,
           ),
         ),
@@ -515,22 +558,24 @@ class ContactSection extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
+              AnimatedText(
+                text: title,
                 style: AppTextStyles.labelLarge.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+                  color: AppColors.white,
                 ),
+                animationType: AnimationType.fadeInUp,
               ),
               
               const SizedBox(height: 4),
               
-              Text(
-                subtitle,
+              AnimatedText(
+                text: subtitle,
                 style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.textSecondary,
+                  color: AppColors.white.withOpacity(0.8),
                   height: 1.4,
                 ),
+                animationType: AnimationType.fadeIn,
               ),
             ],
           ),
@@ -548,58 +593,65 @@ class ContactSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
+        AnimatedText(
+          text: label,
           style: AppTextStyles.labelMedium.copyWith(
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: AppColors.white,
           ),
+          animationType: AnimationType.fadeInUp,
         ),
         
         const SizedBox(height: 8),
         
-        TextFormField(
-          maxLines: maxLines,
-          decoration: InputDecoration(
-            hintText: hint,
-            prefixIcon: Icon(
-              icon,
-              color: AppColors.textSecondary,
-              size: 20,
-            ),
-            filled: true,
-            fillColor: AppColors.lightGray.withValues(alpha: 0.3),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppColors.lightGray,
-                width: 1,
+        MouseRegion(
+          cursor: SystemMouseCursors.text,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            child: TextFormField(
+              maxLines: maxLines,
+              decoration: InputDecoration(
+                hintText: hint,
+                prefixIcon: Icon(
+                  icon,
+                  color: AppColors.white.withOpacity(0.7),
+                  size: 20,
+                ),
+                filled: true,
+                fillColor: AppColors.white.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.white.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.white.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(
+                    color: AppColors.accent,
+                    width: 2,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                hintStyle: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.white.withOpacity(0.6),
+                ),
+              ),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.white,
               ),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppColors.lightGray,
-                width: 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppColors.primary,
-                width: 2,
-              ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-            hintStyle: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary.withValues(alpha: 0.7),
-            ),
-          ),
-          style: AppTextStyles.bodyMedium.copyWith(
-            color: AppColors.textPrimary,
           ),
         ),
       ],
